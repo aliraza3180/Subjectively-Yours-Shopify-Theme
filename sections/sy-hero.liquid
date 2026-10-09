@@ -1,0 +1,829 @@
+{%- render 'sy-base' -%}
+{%- liquid
+  assign s = section.settings
+  case s.height
+    when 'small'
+      assign hero_height = '60svh'
+    when 'medium'
+      assign hero_height = '75svh'
+    when 'large'
+      assign hero_height = '90svh'
+    when 'full'
+      assign hero_height = '100svh'
+    else
+      assign hero_height = s.height_custom | append: 'svh'
+  endcase
+  assign overlay_opacity = s.overlay_opacity | divided_by: 100.0
+  assign heading_tag = s.heading_tag | default: 'h2'
+  assign show_video = false
+  if s.media_type == 'video' and s.video != blank
+    assign show_video = true
+  endif
+-%}
+<section
+  id="sy-{{ section.id }}"
+  class="sy-hero sy-hero--v-{{ s.vertical_position }} sy-hero--h-{{ s.horizontal_position }} sy-hero--mv-{{ s.vertical_position_mobile }}{% if s.ken_burns %} sy-hero--kenburns{% endif %}"
+  style="
+    --sy-hero-h: {{ hero_height }};
+    --sy-hero-h-m: {{ s.height_mobile }}svh;
+    --sy-hero-text: {{ s.text_color }};
+    --sy-hero-bg: {{ s.background_color }};
+    --sy-ov-color: {{ s.overlay_color }};
+    --sy-ov-opacity: {{ overlay_opacity }};
+    --sy-hero-max: {{ s.content_max_width }}px;
+    --sy-hero-pt: {{ s.content_padding_top }}px;
+    --sy-hero-pb: {{ s.content_padding_bottom }}px;
+    --sy-hero-pt-m: {{ s.content_padding_top_mobile }}px;
+    --sy-hero-pb-m: {{ s.content_padding_bottom_mobile }}px;
+    --sy-h-d: {{ s.heading_size }}px;
+    --sy-h-m: {{ s.heading_size_mobile }}px;
+    --sy-hero-sub: {{ s.subheading_size }}px;
+  "
+>
+  <div class="sy-hero__media">
+    {%- if show_video -%}
+      <div class="sy-hero__video{% if s.image_mobile != blank or s.image != blank %} sy-desktop-only{% endif %}">
+        {{
+          s.video
+          | video_tag:
+            autoplay: true,
+            loop: true,
+            muted: true,
+            playsinline: true,
+            controls: false,
+            preload: 'metadata',
+            image_size: '2000x'
+        }}
+      </div>
+    {%- endif -%}
+    {%- liquid
+      assign desktop_image = s.image
+      assign mobile_image = s.image_mobile | default: s.image
+      assign hero_img_style = 'object-position: ' | append: desktop_image.presentation.focal_point
+    -%}
+    {%- if desktop_image != blank -%}
+      <picture{% if show_video %} class="sy-mobile-only"{% endif %}>
+        {%- if s.image_mobile != blank -%}
+          <source
+            media="(max-width: 749px)"
+            srcset="{{ mobile_image | image_url: width: 600 }} 600w, {{ mobile_image | image_url: width: 900 }} 900w, {{ mobile_image | image_url: width: 1200 }} 1200w"
+            sizes="100vw"
+          >
+        {%- endif -%}
+        {{
+          desktop_image
+          | image_url: width: 3000
+          | image_tag:
+            widths: '750, 1100, 1500, 2000, 2600, 3000',
+            sizes: '100vw',
+            loading: 'eager',
+            fetchpriority: 'high',
+            alt: desktop_image.alt,
+            style: hero_img_style
+        }}
+      </picture>
+    {%- elsif show_video == false -%}
+      <picture>
+        <source media="(max-width: 749px)" srcset="{{ 'sy-demo-hero-mobile.jpg' | asset_url }}">
+        <img
+          src="{{ 'sy-demo-hero.jpg' | asset_url }}"
+          alt=""
+          width="2400"
+          height="1400"
+          fetchpriority="high"
+          class="sy-hero__demo"
+        >
+      </picture>
+    {%- endif -%}
+  </div>
+  {%- if s.overlay_style != 'none' -%}
+    <div class="sy-hero__overlay sy-hero__overlay--{{ s.overlay_style }}" aria-hidden="true"></div>
+  {%- endif -%}
+
+  <div class="sy-hero__inner sy-container{% if s.content_width == 'full' %} sy-container--full{% endif %}">
+    <div class="sy-hero__content sy-hero__content--{{ s.text_alignment }} sy-hero__content--m-{{ s.text_alignment_mobile }}">
+      {%- if s.eyebrow != blank -%}
+        <div class="sy-hero__eyebrow">
+          <p class="sy-eyebrow">{{ s.eyebrow | escape }}</p>
+          {%- if s.show_rule -%}
+            <span class="sy-rule" aria-hidden="true"></span>
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+      {%- if s.heading != blank or s.heading_line_2 != blank -%}
+        <{{ heading_tag }} class="sy-heading sy-hero__heading">
+          {%- if s.heading != blank -%}
+            <span class="sy-hero__line">{{ s.heading }}</span>
+          {%- endif -%}
+          {%- if s.heading_line_2 != blank -%}
+            <span class="sy-hero__line{% if s.italic_line_2 %} sy-hero__line--italic{% endif %}">{{ s.heading_line_2 }}</span>
+          {%- endif -%}
+        </{{ heading_tag }}>
+      {%- endif -%}
+      {%- if s.subheading != blank -%}
+        <div class="sy-hero__sub">{{ s.subheading }}</div>
+      {%- endif -%}
+      {%- if s.button_label != blank or s.button_label_2 != blank -%}
+        <div class="sy-actions sy-hero__actions">
+          {%- render 'sy-button', label: s.button_label, url: s.button_link, style: s.button_style -%}
+          {%- render 'sy-button', label: s.button_label_2, url: s.button_link_2, style: s.button_style_2 -%}
+        </div>
+      {%- endif -%}
+    </div>
+  </div>
+</section>
+
+{% stylesheet %}
+  .sy-hero {
+    --sy-gutter: var(--sy-gutter-mobile);
+    position: relative;
+    display: flex;
+    min-height: var(--sy-hero-h-m);
+    overflow: hidden;
+    background: var(--sy-hero-bg);
+    color: var(--sy-hero-text);
+    isolation: isolate;
+  }
+
+  @media screen and (min-width: 750px) {
+    .sy-hero {
+      --sy-gutter: var(--sy-gutter-desktop);
+      min-height: var(--sy-hero-h);
+    }
+  }
+
+  .sy-hero__media,
+  .sy-hero__media > *,
+  .sy-hero__overlay {
+    position: absolute;
+    inset: 0;
+  }
+
+  .sy-hero__media {
+    z-index: -2;
+  }
+
+  .sy-hero__media img,
+  .sy-hero__media video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .sy-hero__demo {
+    object-position: 50% 40%;
+  }
+
+  @media screen and (min-width: 750px) {
+    .sy-hero__demo {
+      object-position: center;
+    }
+  }
+
+  .sy-hero__overlay {
+    z-index: -1;
+    opacity: var(--sy-ov-opacity);
+  }
+
+  /* Soft top shade so the transparent header stays legible on light photographs */
+  .sy-hero::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto;
+    z-index: -1;
+    height: 220px;
+    background: linear-gradient(180deg, rgb(0 0 0 / 0.38) 0%, transparent 100%);
+    pointer-events: none;
+  }
+
+  .sy-hero__overlay--solid {
+    background: var(--sy-ov-color);
+  }
+
+  .sy-hero__overlay--gradient-left {
+    background: linear-gradient(90deg, var(--sy-ov-color) 0%, var(--sy-ov-color) 25%, transparent 80%);
+  }
+
+  .sy-hero__overlay--gradient-bottom {
+    background: linear-gradient(0deg, var(--sy-ov-color) 0%, transparent 75%);
+  }
+
+  @media screen and (max-width: 749px) {
+    .sy-hero__overlay--gradient-left {
+      background: linear-gradient(0deg, var(--sy-ov-color) 0%, var(--sy-ov-color) 20%, transparent 85%);
+    }
+  }
+
+  .sy-hero__inner {
+    display: flex;
+    flex-direction: column;
+    justify-content: var(--sy-hero-mv, flex-end);
+    padding-block: var(--sy-hero-pt-m) var(--sy-hero-pb-m);
+  }
+
+  @media screen and (min-width: 750px) {
+    .sy-hero__inner {
+      justify-content: var(--sy-hero-v, flex-end);
+      align-items: var(--sy-hero-hz, flex-start);
+      padding-block: var(--sy-hero-pt) var(--sy-hero-pb);
+    }
+  }
+
+  .sy-hero--v-top { --sy-hero-v: flex-start; }
+  .sy-hero--v-center { --sy-hero-v: center; }
+  .sy-hero--v-bottom { --sy-hero-v: flex-end; }
+  .sy-hero--h-left { --sy-hero-hz: flex-start; }
+  .sy-hero--h-center { --sy-hero-hz: center; }
+  .sy-hero--h-right { --sy-hero-hz: flex-end; }
+  .sy-hero--mv-top { --sy-hero-mv: flex-start; }
+  .sy-hero--mv-center { --sy-hero-mv: center; }
+  .sy-hero--mv-bottom { --sy-hero-mv: flex-end; }
+
+  .sy-hero__content {
+    --sy-fg: var(--sy-hero-text);
+    --sy-accent: var(--sy-gold);
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    width: 100%;
+    max-width: var(--sy-hero-max);
+  }
+
+  .sy-hero__content--center { align-items: center; text-align: center; }
+  .sy-hero__content--right { align-items: flex-end; text-align: right; }
+  .sy-hero__content--center .sy-rule { margin-inline: auto; }
+  .sy-hero__content--right .sy-rule { margin-inline-start: auto; }
+
+  @media screen and (max-width: 749px) {
+    .sy-hero__content--m-left { align-items: flex-start; text-align: left; }
+    .sy-hero__content--m-left .sy-rule { margin-inline: 0; }
+    .sy-hero__content--m-center { align-items: center; text-align: center; }
+    .sy-hero__content--m-center .sy-rule { margin-inline: auto; }
+  }
+
+  .sy-hero__heading {
+    color: var(--sy-hero-text);
+    line-height: 1.02;
+  }
+
+  .sy-hero__line {
+    display: block;
+  }
+
+  .sy-hero__line--italic {
+    font-style: italic;
+  }
+
+  .sy-hero__sub {
+    max-width: 36rem;
+    font-family: var(--sy-font-body);
+    font-size: calc(var(--sy-hero-sub) * 0.9);
+    line-height: 1.5;
+  }
+
+  .sy-hero__sub > * {
+    margin: 0;
+  }
+
+  @media screen and (min-width: 750px) {
+    .sy-hero__sub {
+      font-size: var(--sy-hero-sub);
+    }
+  }
+
+  .sy-hero__actions {
+    margin-block-start: 8px;
+  }
+
+  .sy-hero .sy-link {
+    color: var(--sy-hero-text);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .sy-hero--kenburns .sy-hero__media img {
+      animation: sy-kenburns 14s ease-out both;
+    }
+  }
+
+  @keyframes sy-kenburns {
+    from {
+      transform: scale(1.08);
+    }
+    to {
+      transform: scale(1);
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "SY Hero",
+  "tag": "div",
+  "class": "sy-hero-wrapper",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Media"
+    },
+    {
+      "type": "select",
+      "id": "media_type",
+      "label": "Media type",
+      "options": [
+        {
+          "value": "image",
+          "label": "Image"
+        },
+        {
+          "value": "video",
+          "label": "Video"
+        }
+      ],
+      "default": "image"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Image (desktop)",
+      "info": "Recommended 2400 × 1400px or larger. Set a focal point in the image settings."
+    },
+    {
+      "type": "image_picker",
+      "id": "image_mobile",
+      "label": "Image (mobile, optional)",
+      "info": "Portrait image, about 1200 × 1600px."
+    },
+    {
+      "type": "video",
+      "id": "video",
+      "label": "Video",
+      "visible_if": "{{ section.settings.media_type == 'video' }}",
+      "info": "Short, muted loop. If a desktop image is also set, the image is shown on mobile to save data."
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background colour behind media",
+      "default": "#41523F"
+    },
+    {
+      "type": "header",
+      "content": "Overlay"
+    },
+    {
+      "type": "select",
+      "id": "overlay_style",
+      "label": "Overlay style",
+      "options": [
+        {
+          "value": "none",
+          "label": "None"
+        },
+        {
+          "value": "solid",
+          "label": "Solid"
+        },
+        {
+          "value": "gradient-left",
+          "label": "Gradient from text side"
+        },
+        {
+          "value": "gradient-bottom",
+          "label": "Gradient from bottom"
+        }
+      ],
+      "default": "gradient-left"
+    },
+    {
+      "type": "color",
+      "id": "overlay_color",
+      "label": "Overlay colour",
+      "default": "#1F2A1E"
+    },
+    {
+      "type": "range",
+      "id": "overlay_opacity",
+      "label": "Overlay opacity",
+      "min": 0,
+      "max": 95,
+      "step": 5,
+      "unit": "%",
+      "default": 70
+    },
+    {
+      "type": "header",
+      "content": "Size and position"
+    },
+    {
+      "type": "select",
+      "id": "height",
+      "label": "Height (desktop)",
+      "options": [
+        {
+          "value": "small",
+          "label": "Small"
+        },
+        {
+          "value": "medium",
+          "label": "Medium"
+        },
+        {
+          "value": "large",
+          "label": "Large"
+        },
+        {
+          "value": "full",
+          "label": "Full screen"
+        },
+        {
+          "value": "custom",
+          "label": "Custom"
+        }
+      ],
+      "default": "large"
+    },
+    {
+      "type": "range",
+      "id": "height_custom",
+      "label": "Custom height",
+      "min": 40,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "default": 85,
+      "visible_if": "{{ section.settings.height == 'custom' }}"
+    },
+    {
+      "type": "range",
+      "id": "height_mobile",
+      "label": "Height (mobile)",
+      "min": 50,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "default": 90
+    },
+    {
+      "type": "select",
+      "id": "vertical_position",
+      "label": "Content vertical position (desktop)",
+      "options": [
+        {
+          "value": "top",
+          "label": "Top"
+        },
+        {
+          "value": "center",
+          "label": "Centre"
+        },
+        {
+          "value": "bottom",
+          "label": "Bottom"
+        }
+      ],
+      "default": "bottom"
+    },
+    {
+      "type": "select",
+      "id": "horizontal_position",
+      "label": "Content horizontal position (desktop)",
+      "options": [
+        {
+          "value": "left",
+          "label": "Left"
+        },
+        {
+          "value": "center",
+          "label": "Centre"
+        },
+        {
+          "value": "right",
+          "label": "Right"
+        }
+      ],
+      "default": "left"
+    },
+    {
+      "type": "select",
+      "id": "text_alignment",
+      "label": "Text alignment (desktop)",
+      "options": [
+        {
+          "value": "left",
+          "label": "Left"
+        },
+        {
+          "value": "center",
+          "label": "Centre"
+        },
+        {
+          "value": "right",
+          "label": "Right"
+        }
+      ],
+      "default": "left"
+    },
+    {
+      "type": "select",
+      "id": "vertical_position_mobile",
+      "label": "Content position (mobile)",
+      "options": [
+        {
+          "value": "top",
+          "label": "Top"
+        },
+        {
+          "value": "center",
+          "label": "Centre"
+        },
+        {
+          "value": "bottom",
+          "label": "Bottom"
+        }
+      ],
+      "default": "bottom"
+    },
+    {
+      "type": "select",
+      "id": "text_alignment_mobile",
+      "label": "Text alignment (mobile)",
+      "options": [
+        {
+          "value": "left",
+          "label": "Left"
+        },
+        {
+          "value": "center",
+          "label": "Centre"
+        }
+      ],
+      "default": "left"
+    },
+    {
+      "type": "range",
+      "id": "content_max_width",
+      "label": "Content max width",
+      "min": 320,
+      "max": 960,
+      "step": 20,
+      "unit": "px",
+      "default": 660
+    },
+    {
+      "type": "range",
+      "id": "content_padding_top",
+      "label": "Space above content (desktop)",
+      "min": 0,
+      "max": 240,
+      "step": 8,
+      "unit": "px",
+      "default": 160,
+      "info": "Leaves room for the transparent header."
+    },
+    {
+      "type": "range",
+      "id": "content_padding_bottom",
+      "label": "Space below content (desktop)",
+      "min": 0,
+      "max": 200,
+      "step": 8,
+      "unit": "px",
+      "default": 104
+    },
+    {
+      "type": "range",
+      "id": "content_padding_top_mobile",
+      "label": "Space above content (mobile)",
+      "min": 0,
+      "max": 200,
+      "step": 8,
+      "unit": "px",
+      "default": 128
+    },
+    {
+      "type": "range",
+      "id": "content_padding_bottom_mobile",
+      "label": "Space below content (mobile)",
+      "min": 0,
+      "max": 160,
+      "step": 8,
+      "unit": "px",
+      "default": 56
+    },
+    {
+      "type": "select",
+      "id": "content_width",
+      "label": "Content container",
+      "options": [
+        {
+          "value": "page",
+          "label": "Brand width"
+        },
+        {
+          "value": "full",
+          "label": "Full width"
+        }
+      ],
+      "default": "page"
+    },
+    {
+      "type": "header",
+      "content": "Text"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text colour",
+      "default": "#F5EDE1"
+    },
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow label",
+      "default": "Collected, not manufactured"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_rule",
+      "label": "Show gold rule under label",
+      "default": true
+    },
+    {
+      "type": "inline_richtext",
+      "id": "heading",
+      "label": "Heading line 1",
+      "default": "Beautiful things"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "heading_line_2",
+      "label": "Heading line 2",
+      "default": "worth keeping."
+    },
+    {
+      "type": "checkbox",
+      "id": "italic_line_2",
+      "label": "Italicise line 2",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "heading_tag",
+      "label": "Heading tag (SEO)",
+      "options": [
+        {
+          "value": "h1",
+          "label": "H1"
+        },
+        {
+          "value": "h2",
+          "label": "H2"
+        },
+        {
+          "value": "p",
+          "label": "Paragraph"
+        }
+      ],
+      "default": "h1",
+      "info": "The homepage already has a hidden H1 with the store name, so use H2 there. Use H1 if this hero is used on a page without another H1."
+    },
+    {
+      "type": "range",
+      "id": "heading_size",
+      "label": "Heading size (desktop)",
+      "min": 32,
+      "max": 120,
+      "step": 2,
+      "unit": "px",
+      "default": 84
+    },
+    {
+      "type": "range",
+      "id": "heading_size_mobile",
+      "label": "Heading size (mobile)",
+      "min": 28,
+      "max": 72,
+      "step": 2,
+      "unit": "px",
+      "default": 46
+    },
+    {
+      "type": "richtext",
+      "id": "subheading",
+      "label": "Subheading",
+      "default": "<p>Vintage, antique and simply wonderful things, collected one at a time.</p>"
+    },
+    {
+      "type": "range",
+      "id": "subheading_size",
+      "label": "Subheading size (desktop)",
+      "min": 14,
+      "max": 28,
+      "step": 1,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "header",
+      "content": "Buttons"
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Button 1 label",
+      "default": "Shop new arrivals"
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "Button 1 link"
+    },
+    {
+      "type": "select",
+      "id": "button_style",
+      "label": "Button 1 style",
+      "options": [
+        {
+          "value": "light",
+          "label": "Solid cream"
+        },
+        {
+          "value": "dark",
+          "label": "Solid forest"
+        },
+        {
+          "value": "outline-light",
+          "label": "Outline cream"
+        },
+        {
+          "value": "outline-dark",
+          "label": "Outline forest"
+        },
+        {
+          "value": "link",
+          "label": "Text link"
+        }
+      ],
+      "default": "light"
+    },
+    {
+      "type": "text",
+      "id": "button_label_2",
+      "label": "Button 2 label"
+    },
+    {
+      "type": "url",
+      "id": "button_link_2",
+      "label": "Button 2 link"
+    },
+    {
+      "type": "select",
+      "id": "button_style_2",
+      "label": "Button 2 style",
+      "options": [
+        {
+          "value": "light",
+          "label": "Solid cream"
+        },
+        {
+          "value": "dark",
+          "label": "Solid forest"
+        },
+        {
+          "value": "outline-light",
+          "label": "Outline cream"
+        },
+        {
+          "value": "outline-dark",
+          "label": "Outline forest"
+        },
+        {
+          "value": "link",
+          "label": "Text link"
+        }
+      ],
+      "default": "link"
+    },
+    {
+      "type": "header",
+      "content": "Motion"
+    },
+    {
+      "type": "checkbox",
+      "id": "ken_burns",
+      "label": "Slow zoom on load",
+      "default": true
+    }
+  ],
+  "presets": [
+    {
+      "name": "SY Hero"
+    }
+  ],
+  "disabled_on": {
+    "groups": [
+      "header"
+    ]
+  }
+}
+{% endschema %}

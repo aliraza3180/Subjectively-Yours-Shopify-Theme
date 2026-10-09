@@ -1,0 +1,18 @@
+{%- doc -%}
+  Renders a merchant image (with focal point) or, when none is chosen, a placeholder theme asset.
+
+  @param {image} [image] - Merchant-selected image
+  @param {string} [demo] - Placeholder theme asset filename
+  @param {string} [sizes] - Image sizes attribute
+
+  @example
+  {% render 'sy-chapter-image', image: section.settings.image_1, demo: 'sy-demo-about-vase.jpg' %}
+{%- enddoc -%}
+{%- if image != blank -%}
+  {%- assign img_style = 'object-position: ' | append: image.presentation.focal_point -%}
+  {{ image | image_url: width: 1800 | image_tag: widths: '400, 700, 1000, 1400, 1800', sizes: sizes, loading: 'lazy', alt: image.alt, style: img_style }}
+{%- elsif demo != blank -%}
+  <img src="{{ demo | asset_url }}" alt="" loading="lazy" width="1200" height="1500">
+{%- else -%}
+  {{ 'image' | placeholder_svg_tag }}
+{%- endif -%}

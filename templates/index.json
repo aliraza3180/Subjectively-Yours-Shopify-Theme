@@ -1,0 +1,159 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "sy_hero": {
+      "type": "sy-hero",
+      "settings": {
+        "button_link": "/collections/new-arrivals",
+        "heading_tag": "h2"
+      }
+    },
+    "sy_newly_collected": {
+      "type": "sy-product-grid",
+      "settings": {
+        "link_url": "/collections/new-arrivals",
+        "products_to_show": 8,
+        "columns_desktop": 4
+      }
+    },
+    "sy_shop_subjectively": {
+      "type": "sy-collection-tiles",
+      "settings": {
+        "link_url": "/collections/all"
+      },
+      "blocks": {
+        "tile_1": {
+          "type": "tile",
+          "settings": {
+            "title": "COOK",
+            "description": "Useful old things for the kitchen",
+            "link": "/collections/cook"
+          }
+        },
+        "tile_2": {
+          "type": "tile",
+          "settings": {
+            "title": "SERVE",
+            "description": "For a table that tells a story",
+            "link": "/collections/serve"
+          }
+        },
+        "tile_3": {
+          "type": "tile",
+          "settings": {
+            "title": "DRINK",
+            "description": "Worth raising a glass to",
+            "link": "/collections/drink"
+          }
+        },
+        "tile_4": {
+          "type": "tile",
+          "settings": {
+            "title": "LIVE",
+            "description": "For a home collected over time",
+            "link": "/collections/live"
+          }
+        },
+        "tile_5": {
+          "type": "tile",
+          "settings": {
+            "title": "WEAR",
+            "description": "With a past worth wearing",
+            "link": "/collections/wear"
+          }
+        },
+        "tile_6": {
+          "type": "tile",
+          "settings": {
+            "title": "COLLECT",
+            "description": "Simply because they deserve to be kept",
+            "link": "/collections/collect"
+          }
+        }
+      },
+      "block_order": [
+        "tile_1",
+        "tile_2",
+        "tile_3",
+        "tile_4",
+        "tile_5",
+        "tile_6"
+      ]
+    },
+    "sy_enamel_feature": {
+      "type": "sy-feature",
+      "settings": {
+        "button_link": "/collections/the-enamel-collection"
+      }
+    },
+    "sy_statement": {
+      "type": "sy-statement",
+      "settings": {}
+    },
+    "sy_collector": {
+      "type": "sy-image-text",
+      "settings": {
+        "button_link": "/pages/about"
+      }
+    },
+    "sy_found_gone": {
+      "type": "sy-found-gone",
+      "settings": {
+        "link_url": "/collections/sold-archive"
+      }
+    },
+    "sy_join_the_hunt": {
+      "type": "sy-newsletter",
+      "settings": {}
+    },
+    "sy_instagram": {
+      "type": "sy-gallery",
+      "settings": {
+        "link_url": "https://www.instagram.com/"
+      },
+      "blocks": {
+        "image_1": {
+          "type": "image",
+          "settings": {}
+        },
+        "image_2": {
+          "type": "image",
+          "settings": {}
+        },
+        "image_3": {
+          "type": "image",
+          "settings": {}
+        },
+        "image_4": {
+          "type": "image",
+          "settings": {}
+        }
+      },
+      "block_order": [
+        "image_1",
+        "image_2",
+        "image_3",
+        "image_4"
+      ]
+    }
+  },
+  "order": [
+    "sy_hero",
+    "sy_newly_collected",
+    "sy_shop_subjectively",
+    "sy_enamel_feature",
+    "sy_statement",
+    "sy_collector",
+    "sy_found_gone",
+    "sy_join_the_hunt",
+    "sy_instagram"
+  ]
+}

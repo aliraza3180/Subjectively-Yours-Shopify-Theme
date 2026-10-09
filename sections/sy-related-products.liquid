@@ -1,0 +1,403 @@
+{%- render 'sy-base' -%}
+{%- liquid
+  assign s = section.settings
+  assign product = closest.product
+  assign rec_url = routes.product_recommendations_url | append: '?section_id=' | append: section.id | append: '&product_id=' | append: product.id | append: '&limit=' | append: s.products_to_show | append: '&intent=related'
+-%}
+<section
+  id="sy-{{ section.id }}"
+  class="sy-section sy-scheme--{{ s.color_scheme }} sy-related"
+  style="{% render 'sy-section-style', settings: s %}"
+>
+  <div class="sy-container{% if s.content_width == 'full' %} sy-container--full{% endif %}">
+    {%- if s.show_collections and product.collections.size > 0 -%}
+      <div class="sy-related__chips">
+        <span class="sy-eyebrow">{{ 'sy.product.also_in' | t }}</span>
+        <ul role="list">
+          {%- for c in product.collections -%}
+            {%- unless c.handle == 'all' or c.handle == 'frontpage' -%}
+              <li><a href="{{ c.url }}">{{ c.title | escape }}</a></li>
+            {%- endunless -%}
+          {%- endfor -%}
+        </ul>
+      </div>
+    {%- endif -%}
+
+    {%- render 'sy-section-heading', settings: s -%}
+
+    <sy-related-products data-url="{{ rec_url }}" class="sy-related__results">
+      {%- if recommendations.performed? and recommendations.products_count > 0 -%}
+        <div class="sy-grid" style="--sy-cols-d: {{ s.columns_desktop }}; --sy-cols-m: 2;">
+          {%- for rec in recommendations.products -%}
+            {%- render 'sy-product-card', product: rec, show_meta: s.show_meta, show_price: true -%}
+          {%- endfor -%}
+        </div>
+      {%- elsif recommendations.performed? == false -%}
+        {%- assign fallback = product.collections | where: 'products_count' | first -%}
+        {%- if fallback and fallback.products_count > 1 -%}
+          <div class="sy-grid" style="--sy-cols-d: {{ s.columns_desktop }}; --sy-cols-m: 2;">
+            {%- assign shown = 0 -%}
+            {%- for rec in fallback.products limit: 12 -%}
+              {%- if rec.id == product.id or rec.available == false -%}{%- continue -%}{%- endif -%}
+              {%- if shown >= s.products_to_show -%}{%- break -%}{%- endif -%}
+              {%- assign shown = shown | plus: 1 -%}
+              {%- render 'sy-product-card', product: rec, show_meta: s.show_meta, show_price: true -%}
+            {%- endfor -%}
+          </div>
+        {%- endif -%}
+      {%- endif -%}
+    </sy-related-products>
+  </div>
+</section>
+
+{% stylesheet %}
+  .sy-related__chips {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px 18px;
+    margin-block-end: 56px;
+    padding-block-end: 28px;
+    border-block-end: 1px solid var(--sy-line);
+  }
+
+  .sy-related__chips ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .sy-related__chips a {
+    display: inline-flex;
+    padding: 8px 14px;
+    border: 1px solid var(--sy-fg);
+    border-radius: var(--sy-radius);
+    color: var(--sy-fg);
+    font-family: var(--sy-font-label);
+    font-size: 12px;
+    letter-spacing: var(--sy-label-spacing);
+    text-decoration: none;
+    text-transform: uppercase;
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+
+  .sy-related__chips a:hover {
+    background: var(--sy-fg);
+    color: var(--sy-bg);
+  }
+{% endstylesheet %}
+
+{% javascript %}
+  if (!customElements.get('sy-related-products')) {
+    customElements.define(
+      'sy-related-products',
+      class SyRelatedProducts extends HTMLElement {
+        connectedCallback() {
+          const url = this.dataset.url;
+          if (!url) return;
+          const load = async () => {
+            try {
+              const response = await fetch(url);
+              const html = await response.text();
+              const doc = new DOMParser().parseFromString(html, 'text/html');
+              const fresh = doc.querySelector('sy-related-products');
+              if (fresh && fresh.innerHTML.trim()) this.innerHTML = fresh.innerHTML;
+            } catch (error) {
+              /* Recommendations are optional; leave any fallback in place. */
+            }
+          };
+          if ('IntersectionObserver' in window) {
+            const io = new IntersectionObserver((entries) => {
+              if (entries.some((e) => e.isIntersecting)) {
+                io.disconnect();
+                load();
+              }
+            }, { rootMargin: '400px 0px' });
+            io.observe(this);
+          } else {
+            load();
+          }
+        }
+      }
+    );
+  }
+{% endjavascript %}
+
+{% schema %}
+{
+  "name": "SY Related finds",
+  "tag": "div",
+  "enabled_on": {
+    "templates": [
+      "product"
+    ]
+  },
+  "settings": [
+    {
+      "type": "header",
+      "content": "Heading"
+    },
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow label",
+      "default": "Related finds"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_rule",
+      "label": "Show gold rule under label",
+      "default": true
+    },
+    {
+      "type": "inline_richtext",
+      "id": "heading",
+      "label": "Heading",
+      "default": "You may <em>also like</em>",
+      "info": "Use italic for an accent word."
+    },
+    {
+      "type": "range",
+      "id": "heading_size",
+      "label": "Heading size (desktop)",
+      "min": 24,
+      "max": 96,
+      "step": 2,
+      "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "heading_size_mobile",
+      "label": "Heading size (mobile)",
+      "min": 20,
+      "max": 64,
+      "step": 2,
+      "unit": "px",
+      "default": 30
+    },
+    {
+      "type": "select",
+      "id": "heading_alignment",
+      "label": "Heading alignment",
+      "options": [
+        {
+          "value": "left",
+          "label": "Left"
+        },
+        {
+          "value": "center",
+          "label": "Centre"
+        }
+      ],
+      "default": "left"
+    },
+    {
+      "type": "text",
+      "id": "link_label",
+      "label": "Link label"
+    },
+    {
+      "type": "url",
+      "id": "link_url",
+      "label": "Link"
+    },
+    {
+      "type": "header",
+      "content": "Products"
+    },
+    {
+      "type": "range",
+      "id": "products_to_show",
+      "label": "Products to show",
+      "min": 2,
+      "max": 8,
+      "step": 1,
+      "default": 4
+    },
+    {
+      "type": "range",
+      "id": "columns_desktop",
+      "label": "Columns (desktop)",
+      "min": 2,
+      "max": 5,
+      "step": 1,
+      "default": 4
+    },
+    {
+      "type": "checkbox",
+      "id": "show_meta",
+      "label": "Show origin and era",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_collections",
+      "label": "Show 'Also found in' collection links",
+      "default": true,
+      "info": "Shows every collection the piece belongs to — the multi-collection architecture, made visible."
+    },
+    {
+      "type": "header",
+      "content": "Colours"
+    },
+    {
+      "type": "select",
+      "id": "color_scheme",
+      "label": "Colour scheme",
+      "options": [
+        {
+          "value": "cream",
+          "label": "Cream"
+        },
+        {
+          "value": "sage",
+          "label": "Light sage"
+        },
+        {
+          "value": "forest",
+          "label": "Forest green (dark)"
+        },
+        {
+          "value": "custom",
+          "label": "Custom"
+        }
+      ],
+      "default": "cream",
+      "info": "Brand colours are set in Theme settings > Subjectively Yours."
+    },
+    {
+      "type": "color",
+      "id": "custom_background",
+      "label": "Background",
+      "default": "#F5EDE1",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "custom_text",
+      "label": "Text",
+      "default": "#41523F",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "custom_muted",
+      "label": "Secondary text",
+      "default": "#5B4632",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "custom_accent",
+      "label": "Accent rules",
+      "default": "#B88D46",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "custom_button_background",
+      "label": "Button background",
+      "default": "#41523F",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "custom_button_text",
+      "label": "Button text",
+      "default": "#F5EDE1",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "custom_card_background",
+      "label": "Image background",
+      "default": "#EFE6D8",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "header",
+      "content": "Section layout"
+    },
+    {
+      "type": "select",
+      "id": "content_width",
+      "label": "Content width",
+      "options": [
+        {
+          "value": "page",
+          "label": "Brand width"
+        },
+        {
+          "value": "narrow",
+          "label": "Narrow"
+        },
+        {
+          "value": "wide",
+          "label": "Wide"
+        },
+        {
+          "value": "full",
+          "label": "Full width"
+        }
+      ],
+      "default": "page"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top padding (desktop)",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom padding (desktop)",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "default": 120
+    },
+    {
+      "type": "range",
+      "id": "padding_top_mobile",
+      "label": "Top padding (mobile)",
+      "min": 0,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "default": 56
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom_mobile",
+      "label": "Bottom padding (mobile)",
+      "min": 0,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "default": 72
+    },
+    {
+      "type": "checkbox",
+      "id": "reveal",
+      "label": "Reveal on scroll",
+      "default": true,
+      "info": "Also needs Theme settings > Subjectively Yours > Reveal sections on scroll."
+    }
+  ],
+  "presets": [
+    {
+      "name": "SY Related finds"
+    }
+  ]
+}
+{% endschema %}

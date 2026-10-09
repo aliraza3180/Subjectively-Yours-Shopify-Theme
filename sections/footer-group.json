@@ -1,0 +1,50 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "type": "footer",
+  "name": "t:names.footer",
+  "sections": {
+    "sy_footer": {
+      "type": "sy-footer",
+      "settings": {},
+      "blocks": {
+        "col_shop": {
+          "type": "menu",
+          "settings": {
+            "title": "Shop",
+            "menu": "main-menu"
+          }
+        },
+        "col_help": {
+          "type": "menu",
+          "settings": {
+            "title": "Help",
+            "menu": "footer"
+          }
+        },
+        "col_visit": {
+          "type": "text",
+          "settings": {
+            "title": "Visit",
+            "text": "<p>Local pickup by appointment in Sebastian, Florida.</p><p>New finds added weekly.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "col_shop",
+        "col_help",
+        "col_visit"
+      ]
+    }
+  },
+  "order": [
+    "sy_footer"
+  ]
+}

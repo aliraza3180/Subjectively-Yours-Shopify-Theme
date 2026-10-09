@@ -1,0 +1,580 @@
+{%- render 'sy-base' -%}
+<section
+  id="sy-{{ section.id }}"
+  class="sy-section sy-scheme--{{ section.settings.color_scheme }} sy-collection-tiles"
+  style="{% render 'sy-section-style', settings: section.settings %}"
+>
+  <div class="sy-container{% if section.settings.content_width == 'full' %} sy-container--full{% endif %}{% if settings.sy_reveal and section.settings.reveal %} sy-reveal{% endif %}">
+
+    {%- liquid
+      assign s = section.settings
+      assign overlay = s.overlay_opacity | divided_by: 100.0
+    -%}
+    {%- render 'sy-section-heading', settings: s -%}
+    <div
+      class="sy-grid sy-tiles sy-tiles--label-{{ s.label_position }}{% if s.hover_zoom %} sy-tiles--zoom{% endif %}"
+      style="--sy-cols-d: {{ s.columns_desktop }}; --sy-cols-m: {{ s.columns_mobile }}; --sy-gap: {{ s.gap }}px; --sy-gap-x: {{ s.gap }}px; --sy-gap-m: 16px; --sy-gap-x-m: 12px; --sy-media-ratio: {{ s.tile_ratio }}; --sy-tile-label: {{ s.label_size }}px; --sy-tile-label-m: {{ s.label_size_mobile }}px; --sy-tile-ov: {{ overlay }}; --sy-tile-text: {{ s.label_color }};"
+    >
+      {%- for block in section.blocks -%}
+        {%- liquid
+          assign col = block.settings.collection
+          assign title = block.settings.title | default: col.title
+          assign link = block.settings.link | default: col.url
+          assign img = block.settings.image | default: col.featured_image
+          assign demo_image = ''
+          if forloop.index <= 6
+            assign demo_image = 'sy-demo-cat-0' | append: forloop.index | append: '.jpg'
+          endif
+          assign tile_style = 'object-position: ' | append: img.presentation.focal_point
+        -%}
+        <a class="sy-tile" href="{{ link | default: '#' }}" {{ block.shopify_attributes }}>
+          <div class="sy-tile__media sy-media sy-media--ratio">
+            {%- if img != blank -%}
+              {{
+                img
+                | image_url: width: 1400
+                | image_tag:
+                  widths: '400, 600, 800, 1000, 1400',
+                  sizes: '(min-width: 990px) 33vw, (min-width: 750px) 50vw, 50vw',
+                  loading: 'lazy',
+                  alt: title,
+                  style: tile_style
+              }}
+            {%- elsif demo_image != blank -%}
+              <img src="{{ demo_image | asset_url }}" alt="{{ title | escape }}" loading="lazy" width="1500" height="1000">
+            {%- else -%}
+              {{ 'collection-1' | placeholder_svg_tag }}
+            {%- endif -%}
+            {%- if s.label_position == 'overlay' and title != blank -%}
+              <span class="sy-tile__shade" aria-hidden="true"></span>
+              <span class="sy-tile__label">{{ title | escape }}</span>
+            {%- endif -%}
+          </div>
+          {%- if s.label_position == 'below' and title != blank -%}
+            <span class="sy-tile__label sy-tile__label--below">{{ title | escape }}</span>
+          {%- endif -%}
+          {%- if s.show_description and block.settings.description != blank -%}
+            <span class="sy-tile__desc">{{ block.settings.description | escape }}</span>
+          {%- endif -%}
+        </a>
+      {%- endfor -%}
+    </div>
+
+  </div>
+</section>
+
+{% stylesheet %}
+  .sy-tile {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    min-width: 0;
+    color: var(--sy-fg);
+    text-decoration: none;
+  }
+
+  .sy-tile__media img {
+    transition: transform 1s ease;
+  }
+
+  @media (hover: hover) {
+    .sy-tiles--zoom .sy-tile:hover .sy-tile__media img {
+      transform: scale(1.04);
+    }
+  }
+
+  .sy-tile__shade {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(0deg, rgb(0 0 0 / var(--sy-tile-ov)) 0%, transparent 55%);
+    pointer-events: none;
+  }
+
+  .sy-tile__label {
+    font-family: var(--sy-font-label);
+    font-size: var(--sy-tile-label-m);
+    letter-spacing: 0.12em;
+    line-height: 1;
+    text-transform: uppercase;
+  }
+
+  @media screen and (min-width: 750px) {
+    .sy-tile__label {
+      font-size: var(--sy-tile-label);
+    }
+  }
+
+  .sy-tile__media .sy-tile__label {
+    position: absolute;
+    inset-inline-start: clamp(14px, 4%, 28px);
+    inset-block-end: clamp(14px, 6%, 28px);
+    color: var(--sy-tile-text);
+  }
+
+  .sy-tile__label--below {
+    color: var(--sy-fg);
+  }
+
+  .sy-tile__desc {
+    font-family: var(--sy-font-body);
+    font-size: 14px;
+    line-height: 1.45;
+    color: var(--sy-fg);
+  }
+
+  @media screen and (min-width: 750px) {
+    .sy-tile__desc {
+      font-size: 16px;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "SY Collection tiles",
+  "tag": "div",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Heading"
+    },
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow label",
+      "default": "The store"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_rule",
+      "label": "Show gold rule under label",
+      "default": true
+    },
+    {
+      "type": "inline_richtext",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Shop subjectively",
+      "info": "Use italic for an accent word."
+    },
+    {
+      "type": "range",
+      "id": "heading_size",
+      "label": "Heading size (desktop)",
+      "min": 24,
+      "max": 96,
+      "step": 2,
+      "unit": "px",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "heading_size_mobile",
+      "label": "Heading size (mobile)",
+      "min": 20,
+      "max": 64,
+      "step": 2,
+      "unit": "px",
+      "default": 34
+    },
+    {
+      "type": "select",
+      "id": "heading_alignment",
+      "label": "Heading alignment",
+      "options": [
+        {
+          "value": "left",
+          "label": "Left"
+        },
+        {
+          "value": "center",
+          "label": "Centre"
+        }
+      ],
+      "default": "left"
+    },
+    {
+      "type": "text",
+      "id": "link_label",
+      "label": "Link label",
+      "default": "Shop all"
+    },
+    {
+      "type": "url",
+      "id": "link_url",
+      "label": "Link"
+    },
+    {
+      "type": "header",
+      "content": "Tiles"
+    },
+    {
+      "type": "range",
+      "id": "columns_desktop",
+      "label": "Columns (desktop)",
+      "min": 2,
+      "max": 4,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "type": "select",
+      "id": "columns_mobile",
+      "label": "Columns (mobile)",
+      "options": [
+        {
+          "value": "1",
+          "label": "1"
+        },
+        {
+          "value": "2",
+          "label": "2"
+        }
+      ],
+      "default": "2"
+    },
+    {
+      "type": "select",
+      "id": "tile_ratio",
+      "label": "Tile shape",
+      "options": [
+        {
+          "value": "3 / 2",
+          "label": "Landscape (3:2)"
+        },
+        {
+          "value": "4 / 3",
+          "label": "Landscape (4:3)"
+        },
+        {
+          "value": "1 / 1",
+          "label": "Square"
+        },
+        {
+          "value": "4 / 5",
+          "label": "Portrait (4:5)"
+        }
+      ],
+      "default": "3 / 2"
+    },
+    {
+      "type": "range",
+      "id": "gap",
+      "label": "Gap (desktop)",
+      "min": 0,
+      "max": 64,
+      "step": 4,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "select",
+      "id": "label_position",
+      "label": "Category name position",
+      "options": [
+        {
+          "value": "overlay",
+          "label": "On image"
+        },
+        {
+          "value": "below",
+          "label": "Below image"
+        }
+      ],
+      "default": "overlay"
+    },
+    {
+      "type": "range",
+      "id": "label_size",
+      "label": "Category name size (desktop)",
+      "min": 16,
+      "max": 64,
+      "step": 2,
+      "unit": "px",
+      "default": 38
+    },
+    {
+      "type": "range",
+      "id": "label_size_mobile",
+      "label": "Category name size (mobile)",
+      "min": 12,
+      "max": 40,
+      "step": 1,
+      "unit": "px",
+      "default": 18
+    },
+    {
+      "type": "color",
+      "id": "label_color",
+      "label": "Category name colour (on image)",
+      "default": "#F5EDE1"
+    },
+    {
+      "type": "range",
+      "id": "overlay_opacity",
+      "label": "Image shade strength",
+      "min": 0,
+      "max": 90,
+      "step": 5,
+      "unit": "%",
+      "default": 55
+    },
+    {
+      "type": "checkbox",
+      "id": "show_description",
+      "label": "Show descriptions",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "hover_zoom",
+      "label": "Zoom image on hover",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Colours"
+    },
+    {
+      "type": "select",
+      "id": "color_scheme",
+      "label": "Colour scheme",
+      "options": [
+        {
+          "value": "cream",
+          "label": "Cream"
+        },
+        {
+          "value": "sage",
+          "label": "Light sage"
+        },
+        {
+          "value": "forest",
+          "label": "Forest green (dark)"
+        },
+        {
+          "value": "custom",
+          "label": "Custom"
+        }
+      ],
+      "default": "sage",
+      "info": "Brand colours are set in Theme settings > Subjectively Yours."
+    },
+    {
+      "type": "color",
+      "id": "custom_background",
+      "label": "Background",
+      "default": "#F5EDE1",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "custom_text",
+      "label": "Text",
+      "default": "#41523F",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "custom_muted",
+      "label": "Secondary text",
+      "default": "#5B4632",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "custom_accent",
+      "label": "Accent rules",
+      "default": "#B88D46",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "custom_button_background",
+      "label": "Button background",
+      "default": "#41523F",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "custom_button_text",
+      "label": "Button text",
+      "default": "#F5EDE1",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "custom_card_background",
+      "label": "Image background",
+      "default": "#EFE6D8",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "header",
+      "content": "Section layout"
+    },
+    {
+      "type": "select",
+      "id": "content_width",
+      "label": "Content width",
+      "options": [
+        {
+          "value": "page",
+          "label": "Brand width"
+        },
+        {
+          "value": "narrow",
+          "label": "Narrow"
+        },
+        {
+          "value": "wide",
+          "label": "Wide"
+        },
+        {
+          "value": "full",
+          "label": "Full width"
+        }
+      ],
+      "default": "page"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top padding (desktop)",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "default": 120
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom padding (desktop)",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "default": 120
+    },
+    {
+      "type": "range",
+      "id": "padding_top_mobile",
+      "label": "Top padding (mobile)",
+      "min": 0,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "default": 72
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom_mobile",
+      "label": "Bottom padding (mobile)",
+      "min": 0,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "default": 72
+    },
+    {
+      "type": "checkbox",
+      "id": "reveal",
+      "label": "Reveal on scroll",
+      "default": true,
+      "info": "Also needs Theme settings > Subjectively Yours > Reveal sections on scroll."
+    }
+  ],
+  "blocks": [
+    {
+      "type": "tile",
+      "name": "Category tile",
+      "settings": [
+        {
+          "type": "collection",
+          "id": "collection",
+          "label": "Collection"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image",
+          "info": "Defaults to the collection image."
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title",
+          "info": "Defaults to the collection title."
+        },
+        {
+          "type": "text",
+          "id": "description",
+          "label": "Description"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Link",
+          "info": "Defaults to the collection page."
+        }
+      ]
+    }
+  ],
+  "max_blocks": 12,
+  "presets": [
+    {
+      "name": "SY Collection tiles",
+      "blocks": [
+        {
+          "type": "tile",
+          "settings": {
+            "title": "COOK",
+            "description": "Useful old things for the kitchen"
+          }
+        },
+        {
+          "type": "tile",
+          "settings": {
+            "title": "SERVE",
+            "description": "For a table that tells a story"
+          }
+        },
+        {
+          "type": "tile",
+          "settings": {
+            "title": "DRINK",
+            "description": "Worth raising a glass to"
+          }
+        },
+        {
+          "type": "tile",
+          "settings": {
+            "title": "LIVE",
+            "description": "For a home collected over time"
+          }
+        },
+        {
+          "type": "tile",
+          "settings": {
+            "title": "WEAR",
+            "description": "With a past worth wearing"
+          }
+        },
+        {
+          "type": "tile",
+          "settings": {
+            "title": "COLLECT",
+            "description": "Simply because they deserve to be kept"
+          }
+        }
+      ]
+    }
+  ],
+  "disabled_on": {
+    "groups": [
+      "header"
+    ]
+  }
+}
+{% endschema %}

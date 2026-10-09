@@ -1,0 +1,428 @@
+{%- render 'sy-base' -%}
+<section
+  id="sy-{{ section.id }}"
+  class="sy-section sy-scheme--{{ section.settings.color_scheme }} sy-statement-section"
+  style="{% render 'sy-section-style', settings: section.settings %}"
+>
+  <div class="sy-container{% if section.settings.content_width == 'full' %} sy-container--full{% endif %}{% if settings.sy_reveal and section.settings.reveal %} sy-reveal{% endif %}">
+
+    {%- assign s = section.settings -%}
+    <div
+      class="sy-statement sy-statement--{{ s.alignment }}"
+      style="--sy-h-d: {{ s.heading_size }}px; --sy-h-m: {{ s.heading_size_mobile }}px; --sy-statement-img: {{ s.image_width }}px; --sy-statement-img-m: {{ s.image_width_mobile }}px; --sy-statement-text: {{ s.text_max_width }}px;"
+    >
+      {%- if s.show_image -%}
+        <div class="sy-statement__image">
+          {%- if s.image != blank -%}
+            {{ s.image | image_url: width: 1200 | image_tag: widths: '300, 500, 700, 900, 1200', sizes: '(min-width: 750px) 400px, 240px', loading: 'lazy', alt: s.image.alt }}
+          {%- else -%}
+            <img src="{{ 'sy-airship.png' | asset_url }}" alt="" loading="lazy" width="900" height="411">
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+      {%- if s.show_rule -%}
+        <span class="sy-rule" aria-hidden="true"></span>
+      {%- endif -%}
+      {%- if s.heading != blank -%}
+        <h2 class="sy-heading">{{ s.heading }}</h2>
+      {%- endif -%}
+      {%- if s.text != blank -%}
+        <div class="sy-text sy-statement__text">{{ s.text }}</div>
+      {%- endif -%}
+      {%- if s.signoff != blank -%}
+        <p class="sy-eyebrow sy-statement__signoff">{{ s.signoff | escape }}</p>
+      {%- endif -%}
+      {%- if s.button_label != blank or s.button_label_2 != blank -%}
+        <div class="sy-actions">
+          {%- render 'sy-button', label: s.button_label, url: s.button_link, style: s.button_style -%}
+          {%- render 'sy-button', label: s.button_label_2, url: s.button_link_2, style: 'link' -%}
+        </div>
+      {%- endif -%}
+    </div>
+
+  </div>
+</section>
+
+{% stylesheet %}
+  .sy-statement {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .sy-statement--center {
+    align-items: center;
+    text-align: center;
+  }
+
+  .sy-statement--left {
+    align-items: flex-start;
+  }
+
+  .sy-statement--right {
+    align-items: flex-end;
+    text-align: right;
+  }
+
+  .sy-statement .sy-rule {
+    margin: 0;
+  }
+
+  .sy-statement__image {
+    width: var(--sy-statement-img-m);
+    max-width: 100%;
+  }
+
+  .sy-statement__image img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  @media screen and (min-width: 750px) {
+    .sy-statement__image {
+      width: var(--sy-statement-img);
+    }
+  }
+
+  .sy-statement__text {
+    max-width: var(--sy-statement-text);
+  }
+
+  .sy-statement__signoff {
+    color: var(--sy-muted);
+  }
+
+  .sy-statement--center .sy-actions {
+    justify-content: center;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "SY Brand statement",
+  "tag": "div",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Brand graphic"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_image",
+      "label": "Show brand graphic",
+      "default": true
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Brand graphic",
+      "info": "Defaults to the Subjectively Yours airship. Upload a transparent PNG/SVG from the brand package."
+    },
+    {
+      "type": "range",
+      "id": "image_width",
+      "label": "Graphic width (desktop)",
+      "min": 80,
+      "max": 600,
+      "step": 10,
+      "unit": "px",
+      "default": 300
+    },
+    {
+      "type": "range",
+      "id": "image_width_mobile",
+      "label": "Graphic width (mobile)",
+      "min": 60,
+      "max": 400,
+      "step": 10,
+      "unit": "px",
+      "default": 210
+    },
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_rule",
+      "label": "Show gold rule",
+      "default": true
+    },
+    {
+      "type": "inline_richtext",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Collected, <em>not</em> manufactured."
+    },
+    {
+      "type": "range",
+      "id": "heading_size",
+      "label": "Heading size (desktop)",
+      "min": 24,
+      "max": 96,
+      "step": 2,
+      "unit": "px",
+      "default": 56
+    },
+    {
+      "type": "range",
+      "id": "heading_size_mobile",
+      "label": "Heading size (mobile)",
+      "min": 20,
+      "max": 64,
+      "step": 2,
+      "unit": "px",
+      "default": 36
+    },
+    {
+      "type": "richtext",
+      "id": "text",
+      "label": "Text",
+      "default": "<p>Nothing here was made last week. Every piece was found, chosen and kept because someone thought it was worth keeping.</p>"
+    },
+    {
+      "type": "range",
+      "id": "text_max_width",
+      "label": "Text max width",
+      "min": 320,
+      "max": 960,
+      "step": 20,
+      "unit": "px",
+      "default": 620
+    },
+    {
+      "type": "select",
+      "id": "alignment",
+      "label": "Alignment",
+      "options": [
+        {
+          "value": "left",
+          "label": "Left"
+        },
+        {
+          "value": "center",
+          "label": "Centre"
+        },
+        {
+          "value": "right",
+          "label": "Right"
+        }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "header",
+      "content": "Button"
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Button label"
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "Button link"
+    },
+    {
+      "type": "select",
+      "id": "button_style",
+      "label": "Button style",
+      "options": [
+        {
+          "value": "link",
+          "label": "Text link"
+        },
+        {
+          "value": "outline",
+          "label": "Outline"
+        },
+        {
+          "value": "solid",
+          "label": "Solid"
+        }
+      ],
+      "default": "link"
+    },
+    {
+      "type": "text",
+      "id": "button_label_2",
+      "label": "Second link label"
+    },
+    {
+      "type": "url",
+      "id": "button_link_2",
+      "label": "Second link"
+    },
+    {
+      "type": "text",
+      "id": "signoff",
+      "label": "Sign-off line (small caps)"
+    },
+    {
+      "type": "header",
+      "content": "Colours"
+    },
+    {
+      "type": "select",
+      "id": "color_scheme",
+      "label": "Colour scheme",
+      "options": [
+        {
+          "value": "cream",
+          "label": "Cream"
+        },
+        {
+          "value": "sage",
+          "label": "Light sage"
+        },
+        {
+          "value": "forest",
+          "label": "Forest green (dark)"
+        },
+        {
+          "value": "custom",
+          "label": "Custom"
+        }
+      ],
+      "default": "cream",
+      "info": "Brand colours are set in Theme settings > Subjectively Yours."
+    },
+    {
+      "type": "color",
+      "id": "custom_background",
+      "label": "Background",
+      "default": "#F5EDE1",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "custom_text",
+      "label": "Text",
+      "default": "#41523F",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "custom_muted",
+      "label": "Secondary text",
+      "default": "#5B4632",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "custom_accent",
+      "label": "Accent rules",
+      "default": "#B88D46",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "custom_button_background",
+      "label": "Button background",
+      "default": "#41523F",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "custom_button_text",
+      "label": "Button text",
+      "default": "#F5EDE1",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "custom_card_background",
+      "label": "Image background",
+      "default": "#EFE6D8",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "header",
+      "content": "Section layout"
+    },
+    {
+      "type": "select",
+      "id": "content_width",
+      "label": "Content width",
+      "options": [
+        {
+          "value": "page",
+          "label": "Brand width"
+        },
+        {
+          "value": "narrow",
+          "label": "Narrow"
+        },
+        {
+          "value": "wide",
+          "label": "Wide"
+        },
+        {
+          "value": "full",
+          "label": "Full width"
+        }
+      ],
+      "default": "page"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top padding (desktop)",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "default": 120
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom padding (desktop)",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "default": 120
+    },
+    {
+      "type": "range",
+      "id": "padding_top_mobile",
+      "label": "Top padding (mobile)",
+      "min": 0,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "default": 72
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom_mobile",
+      "label": "Bottom padding (mobile)",
+      "min": 0,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "default": 72
+    },
+    {
+      "type": "checkbox",
+      "id": "reveal",
+      "label": "Reveal on scroll",
+      "default": true,
+      "info": "Also needs Theme settings > Subjectively Yours > Reveal sections on scroll."
+    }
+  ],
+  "presets": [
+    {
+      "name": "SY Brand statement"
+    }
+  ],
+  "disabled_on": {
+    "groups": [
+      "header"
+    ]
+  }
+}
+{% endschema %}

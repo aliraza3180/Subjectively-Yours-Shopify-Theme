@@ -1,0 +1,47 @@
+{%- doc -%}
+  Renders the shared SY section heading row: optional eyebrow label with gold rule,
+  heading, optional intro text and an optional link aligned to the end of the row.
+
+  @param {object} settings - Section settings containing eyebrow, show_rule, heading, heading_size, heading_size_mobile, heading_alignment, intro, link_label, link_url
+  @param {string} [tag] - Heading HTML tag, defaults to h2
+  @param {string} [extra_class] - Extra classes for the row
+
+  @example
+  {% render 'sy-section-heading', settings: section.settings %}
+{%- enddoc -%}
+{%- liquid
+  assign tag = tag | default: 'h2'
+  assign has_link = false
+  if settings.link_label != blank and settings.link_url != blank
+    assign has_link = true
+  endif
+-%}
+{%- if settings.eyebrow != blank or settings.heading != blank or settings.intro != blank or has_link -%}
+  <div
+    class="sy-head{% if settings.heading_alignment == 'center' %} sy-head--center{% endif %} {{ extra_class }}"
+    style="--sy-h-d: {{ settings.heading_size }}px; --sy-h-m: {{ settings.heading_size_mobile }}px;"
+  >
+    <div class="sy-head__titles">
+      {%- if settings.eyebrow != blank -%}
+        <div>
+          <p class="sy-eyebrow">{{ settings.eyebrow | escape }}</p>
+          {%- if settings.show_rule -%}
+            <span class="sy-rule" aria-hidden="true"></span>
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+      {%- if settings.heading != blank -%}
+        <{{ tag }} class="sy-heading">{{ settings.heading }}</{{ tag }}>
+      {%- endif -%}
+      {%- if settings.intro != blank -%}
+        <div class="sy-text sy-muted sy-head__intro">{{ settings.intro }}</div>
+      {%- endif -%}
+    </div>
+    {%- if has_link -%}
+      <a class="sy-link" href="{{ settings.link_url }}">
+        {{- settings.link_label | escape -}}
+        <span class="sy-link__arrow" aria-hidden="true">&rarr;</span>
+      </a>
+    {%- endif -%}
+  </div>
+{%- endif -%}

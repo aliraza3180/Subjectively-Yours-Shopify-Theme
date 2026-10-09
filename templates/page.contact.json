@@ -1,0 +1,56 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "sy_hero": {
+      "type": "sy-page-hero",
+      "settings": {
+        "eyebrow": "Contact",
+        "title": "Ask about <em>a piece</em>"
+      }
+    },
+    "sy_contact": {
+      "type": "sy-contact",
+      "settings": {},
+      "blocks": {
+        "d1": {
+          "type": "detail",
+          "settings": {
+            "title": "Local pickup",
+            "text": "<p>Free, by appointment in Sebastian, Florida. Exact details are shared privately after your order.</p>"
+          }
+        },
+        "d2": {
+          "type": "detail",
+          "settings": {
+            "title": "Shipping",
+            "text": "<p>Eligible pieces ship within the contiguous United States — tracked and insured for their full value.</p>"
+          }
+        },
+        "d3": {
+          "type": "detail",
+          "settings": {
+            "title": "Already ordered?",
+            "text": "<p>Include your order number and we'll help as quickly as we can.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "d1",
+        "d2",
+        "d3"
+      ]
+    }
+  },
+  "order": [
+    "sy_hero",
+    "sy_contact"
+  ]
+}

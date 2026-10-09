@@ -1,0 +1,602 @@
+{%- render 'sy-base' -%}
+{%- liquid
+  assign s = section.settings
+  assign c = collection
+  assign hero_video = c.metafields.custom.hero_video.value | default: s.video
+  assign hero_image = s.image | default: c.metafields.custom.hero_image.value
+  if hero_image == blank and s.use_collection_image
+    assign hero_image = c.image
+  endif
+  assign demo_image = ''
+  if hero_video == blank and hero_image == blank
+    assign demo_image = s.demo_image
+  endif
+  assign layout = s.layout
+  if layout != 'text' and hero_video == blank and hero_image == blank and demo_image == blank
+    assign layout = 'text'
+  endif
+  assign eyebrow = s.eyebrow
+  assign title = s.title | default: c.title
+  assign chips_menu = s.chips_menu
+  if chips_menu == blank and s.auto_chips
+    assign chips_menu = linklists[c.handle]
+  endif
+  assign overlay = s.overlay_opacity | divided_by: 100.0
+  assign img_style = 'object-position: ' | append: hero_image.presentation.focal_point
+-%}
+<section
+  id="sy-{{ section.id }}"
+  class="sy-section sy-scheme--{{ s.color_scheme }} sy-chero sy-chero--{{ layout }} sy-chero--{{ s.alignment }}"
+  style="{% render 'sy-section-style', settings: s %} --sy-h-d: {{ s.heading_size }}px; --sy-h-m: {{ s.heading_size_mobile }}px; --sy-ov: {{ overlay }}; --sy-chero-h: {{ s.banner_height }}svh;"
+>
+  {%- if layout == 'banner' -%}
+    <div class="sy-chero__bg" aria-hidden="true">
+      {%- if hero_video != blank -%}
+        {{ hero_video | video_tag: autoplay: true, loop: true, muted: true, playsinline: true, controls: false, preload: 'metadata', image_size: '2000x' }}
+      {%- elsif hero_image != blank -%}
+        {{ hero_image | image_url: width: 2600 | image_tag: widths: '750, 1100, 1500, 2000, 2600', sizes: '100vw', loading: 'eager', fetchpriority: 'high', alt: '', style: img_style }}
+      {%- else -%}
+        <img src="{{ demo_image | asset_url }}" alt="" width="1600" height="1200" fetchpriority="high">
+      {%- endif -%}
+      <span class="sy-chero__shade"></span>
+    </div>
+  {%- endif -%}
+  <div class="sy-container{% if s.content_width == 'full' %} sy-container--full{% endif %}">
+    <div class="sy-chero__inner">
+      <div class="sy-chero__text">
+        {%- if s.show_breadcrumb -%}
+          <nav class="sy-chero__crumbs" aria-label="Breadcrumb">
+            <a href="{{ routes.root_url }}">{{ s.home_label | escape }}</a>
+            <span aria-hidden="true">/</span>
+            <span aria-current="page">{{ c.title | escape }}</span>
+          </nav>
+        {%- endif -%}
+        {%- if eyebrow != blank -%}
+          <div>
+            <p class="sy-eyebrow">{{ eyebrow | escape }}</p>
+            {%- if s.show_rule -%}<span class="sy-rule" aria-hidden="true"></span>{%- endif -%}
+          </div>
+        {%- endif -%}
+        <h1 class="sy-heading">{{ title }}</h1>
+        {%- if s.tagline != blank -%}
+          <p class="sy-chero__tagline">{{ s.tagline }}</p>
+        {%- endif -%}
+        {%- if s.show_description and c.description != blank -%}
+          <div class="sy-text sy-chero__desc">{{ c.description }}</div>
+        {%- endif -%}
+        {%- if s.show_count and c.products_count > 0 -%}
+          <p class="sy-eyebrow sy-chero__count">{{ 'sy.collection.count' | t: count: c.products_count }}</p>
+        {%- endif -%}
+        {%- if chips_menu.links.size > 0 -%}
+          <ul class="sy-chero__chips" role="list">
+            {%- for link in chips_menu.links -%}
+              <li><a href="{{ link.url }}"{% if link.active %} aria-current="page"{% endif %}>{{ link.title | escape }}</a></li>
+            {%- endfor -%}
+          </ul>
+        {%- endif -%}
+      </div>
+      {%- if layout == 'split' -%}
+        <div class="sy-chero__media sy-media sy-media--ratio">
+          {%- if hero_video != blank -%}
+            {{ hero_video | video_tag: autoplay: true, loop: true, muted: true, playsinline: true, controls: false, preload: 'metadata', image_size: '1400x' }}
+          {%- elsif hero_image != blank -%}
+            {{ hero_image | image_url: width: 1600 | image_tag: widths: '500, 800, 1100, 1600', sizes: '(min-width: 990px) 50vw, 100vw', loading: 'eager', alt: '', style: img_style }}
+          {%- else -%}
+            <img src="{{ demo_image | asset_url }}" alt="" width="1600" height="1200" loading="eager">
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+    </div>
+  </div>
+</section>
+
+{% stylesheet %}
+  .sy-chero {
+    overflow: hidden;
+  }
+
+  .sy-chero__inner {
+    display: grid;
+    gap: 40px;
+    align-items: center;
+  }
+
+  .sy-chero__text {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    max-width: 46rem;
+  }
+
+  .sy-chero--center .sy-chero__text {
+    align-items: center;
+    margin-inline: auto;
+    text-align: center;
+  }
+
+  .sy-chero--center .sy-rule {
+    margin-inline: auto;
+  }
+
+  .sy-chero--center .sy-chero__chips,
+  .sy-chero--center .sy-chero__crumbs {
+    justify-content: center;
+  }
+
+  @media screen and (min-width: 990px) {
+    .sy-chero--split .sy-chero__inner {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: clamp(48px, 6vw, 96px);
+    }
+  }
+
+  .sy-chero--split .sy-chero__media {
+    --sy-media-ratio: 4 / 3;
+  }
+
+  .sy-chero__media video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .sy-chero--banner {
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    min-height: min(var(--sy-chero-h), 760px);
+    color: var(--sy-cream);
+    --sy-fg: var(--sy-cream);
+  }
+
+  .sy-chero__bg,
+  .sy-chero__bg > img,
+  .sy-chero__bg > video,
+  .sy-chero__shade {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .sy-chero__bg {
+    z-index: 0;
+  }
+
+  .sy-chero__shade {
+    background: linear-gradient(0deg, rgb(0 0 0 / var(--sy-ov)) 0%, rgb(0 0 0 / calc(var(--sy-ov) * 0.4)) 60%, transparent 100%);
+  }
+
+  .sy-chero--banner .sy-container {
+    position: relative;
+    z-index: 1;
+  }
+
+  .sy-chero__tagline {
+    margin: 0;
+    font-family: var(--sy-font-heading);
+    font-size: clamp(19px, 2vw, 24px);
+    font-style: italic;
+  }
+
+  .sy-chero__desc {
+    max-width: 38rem;
+  }
+
+  .sy-chero__count {
+    color: var(--sy-muted);
+  }
+
+  .sy-chero__crumbs {
+    display: flex;
+    gap: 10px;
+    font-size: 14px;
+    color: var(--sy-muted);
+  }
+
+  .sy-chero__crumbs a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .sy-chero__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 6px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .sy-chero__chips a {
+    display: inline-flex;
+    padding: 9px 16px;
+    border: 1px solid var(--sy-fg);
+    border-radius: var(--sy-radius);
+    color: var(--sy-fg);
+    font-family: var(--sy-font-label);
+    font-size: 12px;
+    letter-spacing: var(--sy-label-spacing);
+    text-decoration: none;
+    text-transform: uppercase;
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+
+  .sy-chero__chips a:hover,
+  .sy-chero__chips a[aria-current] {
+    background: var(--sy-fg);
+    color: var(--sy-bg);
+  }
+
+  .sy-chero--banner .sy-chero__chips a:hover,
+  .sy-chero--banner .sy-chero__chips a[aria-current] {
+    color: var(--sy-forest);
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "SY Collection hero",
+  "tag": "div",
+  "enabled_on": {
+    "templates": [
+      "collection"
+    ]
+  },
+  "settings": [
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "select",
+      "id": "layout",
+      "label": "Layout",
+      "options": [
+        {
+          "value": "text",
+          "label": "Text only"
+        },
+        {
+          "value": "split",
+          "label": "Text and media"
+        },
+        {
+          "value": "banner",
+          "label": "Full-width banner"
+        }
+      ],
+      "default": "text",
+      "info": "Media layouts fall back to text only when the collection has no image or video."
+    },
+    {
+      "type": "select",
+      "id": "alignment",
+      "label": "Text alignment",
+      "options": [
+        {
+          "value": "left",
+          "label": "Left"
+        },
+        {
+          "value": "center",
+          "label": "Centre"
+        }
+      ],
+      "default": "left"
+    },
+    {
+      "type": "range",
+      "id": "banner_height",
+      "label": "Banner height",
+      "min": 40,
+      "max": 90,
+      "step": 5,
+      "unit": "%",
+      "default": 60
+    },
+    {
+      "type": "range",
+      "id": "overlay_opacity",
+      "label": "Banner shade",
+      "min": 0,
+      "max": 90,
+      "step": 5,
+      "unit": "%",
+      "default": 55
+    },
+    {
+      "type": "header",
+      "content": "Media"
+    },
+    {
+      "type": "video",
+      "id": "video",
+      "label": "Video",
+      "info": "Or add a video to the collection's custom.hero_video metafield so each collection can have its own. If there is no video, nothing video-related is shown."
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Image",
+      "info": "Or use the collection's custom.hero_image metafield."
+    },
+    {
+      "type": "checkbox",
+      "id": "use_collection_image",
+      "label": "Use the collection image as a fallback",
+      "default": false
+    },
+    {
+      "type": "select",
+      "id": "demo_image",
+      "label": "Placeholder (until an image or video is added)",
+      "options": [
+        {
+          "value": "",
+          "label": "None"
+        },
+        {
+          "value": "sy-demo-enamel-hero.jpg",
+          "label": "Enamel flat-lay"
+        },
+        {
+          "value": "sy-demo-sold-hero.jpg",
+          "label": "Quiet shelf"
+        },
+        {
+          "value": "sy-demo-about-band.jpg",
+          "label": "Tea table"
+        }
+      ],
+      "default": ""
+    },
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_breadcrumb",
+      "label": "Show breadcrumb",
+      "default": false
+    },
+    {
+      "type": "text",
+      "id": "home_label",
+      "label": "Breadcrumb home label",
+      "default": "Home"
+    },
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow label",
+      "default": "Shop"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_rule",
+      "label": "Show gold rule under label",
+      "default": true
+    },
+    {
+      "type": "inline_richtext",
+      "id": "title",
+      "label": "Title",
+      "info": "Defaults to the collection title."
+    },
+    {
+      "type": "range",
+      "id": "heading_size",
+      "label": "Title size (desktop)",
+      "min": 28,
+      "max": 104,
+      "step": 2,
+      "unit": "px",
+      "default": 64
+    },
+    {
+      "type": "range",
+      "id": "heading_size_mobile",
+      "label": "Title size (mobile)",
+      "min": 24,
+      "max": 64,
+      "step": 2,
+      "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "inline_richtext",
+      "id": "tagline",
+      "label": "Tagline (italic)"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_description",
+      "label": "Show collection description",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_count",
+      "label": "Show number of pieces",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Subcategory links"
+    },
+    {
+      "type": "checkbox",
+      "id": "auto_chips",
+      "label": "Use a menu with the same handle as the collection",
+      "default": true,
+      "info": "e.g. create a menu called 'serve' with Platters, Plates, Cake Stands… and it appears on the Serve collection automatically."
+    },
+    {
+      "type": "link_list",
+      "id": "chips_menu",
+      "label": "Or pick a menu"
+    },
+    {
+      "type": "header",
+      "content": "Colours"
+    },
+    {
+      "type": "select",
+      "id": "color_scheme",
+      "label": "Colour scheme",
+      "options": [
+        {
+          "value": "cream",
+          "label": "Cream"
+        },
+        {
+          "value": "sage",
+          "label": "Light sage"
+        },
+        {
+          "value": "forest",
+          "label": "Forest green (dark)"
+        },
+        {
+          "value": "custom",
+          "label": "Custom"
+        }
+      ],
+      "default": "cream",
+      "info": "Brand colours are set in Theme settings > Subjectively Yours."
+    },
+    {
+      "type": "color",
+      "id": "custom_background",
+      "label": "Background",
+      "default": "#F5EDE1",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "custom_text",
+      "label": "Text",
+      "default": "#41523F",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "custom_muted",
+      "label": "Secondary text",
+      "default": "#5B4632",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "custom_accent",
+      "label": "Accent rules",
+      "default": "#B88D46",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "custom_button_background",
+      "label": "Button background",
+      "default": "#41523F",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "custom_button_text",
+      "label": "Button text",
+      "default": "#F5EDE1",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "custom_card_background",
+      "label": "Image background",
+      "default": "#EFE6D8",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "header",
+      "content": "Section layout"
+    },
+    {
+      "type": "select",
+      "id": "content_width",
+      "label": "Content width",
+      "options": [
+        {
+          "value": "page",
+          "label": "Brand width"
+        },
+        {
+          "value": "narrow",
+          "label": "Narrow"
+        },
+        {
+          "value": "wide",
+          "label": "Wide"
+        },
+        {
+          "value": "full",
+          "label": "Full width"
+        }
+      ],
+      "default": "page"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top padding (desktop)",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "default": 72
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom padding (desktop)",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "padding_top_mobile",
+      "label": "Top padding (mobile)",
+      "min": 0,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom_mobile",
+      "label": "Bottom padding (mobile)",
+      "min": 0,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "checkbox",
+      "id": "reveal",
+      "label": "Reveal on scroll",
+      "default": true,
+      "info": "Also needs Theme settings > Subjectively Yours > Reveal sections on scroll."
+    }
+  ],
+  "presets": [
+    {
+      "name": "SY Collection hero"
+    }
+  ]
+}
+{% endschema %}

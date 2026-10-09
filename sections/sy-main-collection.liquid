@@ -1,0 +1,956 @@
+{%- render 'sy-base' -%}
+{%- liquid
+  assign s = section.settings
+  assign sort_by = collection.sort_by | default: collection.default_sort_by
+  assign active_count = 0
+  for filter in collection.filters
+    assign active_count = active_count | plus: filter.active_values.size
+    if filter.type == 'price_range'
+      if filter.min_value.value != nil or filter.max_value.value != nil
+        assign active_count = active_count | plus: 1
+      endif
+    endif
+  endfor
+  assign show_demo = false
+  if collections.all.products_count == 0 and s.show_demo
+    assign show_demo = true
+  endif
+  assign form_id = 'SyFilters-' | append: section.id
+-%}
+<section
+  id="sy-{{ section.id }}"
+  class="sy-section sy-scheme--{{ s.color_scheme }} sy-mc{% if s.enable_filtering and collection.filters.size > 0 %} sy-mc--filters-{{ s.filter_layout }}{% endif %}"
+  style="{% render 'sy-section-style', settings: s %} --sy-cols-d: {{ s.columns_desktop }}; --sy-cols-m: {{ s.columns_mobile }};{% if s.card_ratio != 'theme' %} --sy-card-ratio-local: {{ s.card_ratio }};{% endif %}{% if s.image_fit != 'theme' %} --sy-card-fit-local: {{ s.image_fit }};{% endif %}"
+>
+  <div class="sy-container{% if s.content_width == 'full' %} sy-container--full{% endif %}">
+    {%- paginate collection.products by s.products_per_page -%}
+      <div class="sy-mc__toolbar">
+        {%- if s.enable_filtering and collection.filters.size > 0 -%}
+          <button type="button" class="sy-mc__toggle" aria-controls="{{ form_id }}-panel" aria-expanded="false" data-sy-filter-toggle>
+            <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M4 6h16M7 12h10M10 18h4"/></svg>
+            {{ 'sy.collection.filter' | t }}
+            {%- if active_count > 0 %} ({{ active_count }}){% endif -%}
+          </button>
+        {%- endif -%}
+        {%- if s.show_count and collection.products_count > 0 -%}
+          <p class="sy-eyebrow sy-mc__count">{{ 'sy.collection.count' | t: count: collection.products_count }}</p>
+        {%- endif -%}
+        {%- if s.enable_sorting and collection.sort_options.size > 0 -%}
+          <form class="sy-mc__sort" action="{{ collection.url }}" method="get">
+            {%- for filter in collection.filters -%}
+              {%- for value in filter.active_values -%}
+                <input type="hidden" name="{{ value.param_name }}" value="{{ value.value | escape }}">
+              {%- endfor -%}
+            {%- endfor -%}
+            <label class="sy-eyebrow" for="{{ form_id }}-sort">{{ 'sy.collection.sort_by' | t }}</label>
+            <select id="{{ form_id }}-sort" name="sort_by" data-sy-sort>
+              {%- for option in collection.sort_options -%}
+                <option value="{{ option.value | escape }}"{% if option.value == sort_by %} selected{% endif %}>{{ option.name | escape }}</option>
+              {%- endfor -%}
+            </select>
+            <noscript><button type="submit" class="sy-link">{{ 'sy.collection.apply' | t }}</button></noscript>
+          </form>
+        {%- endif -%}
+      </div>
+
+      {%- if active_count > 0 -%}
+        <ul class="sy-mc__active" role="list">
+          {%- for filter in collection.filters -%}
+            {%- for value in filter.active_values -%}
+              <li>
+                <a href="{{ value.url_to_remove }}" aria-label="{{ 'sy.collection.remove_filter' | t: filter: value.label | escape }}">{{ value.label | escape }} <span aria-hidden="true">&times;</span></a>
+              </li>
+            {%- endfor -%}
+            {%- if filter.type == 'price_range' -%}
+              {%- if filter.min_value.value != nil or filter.max_value.value != nil -%}
+                <li>
+                  <a href="{{ filter.url_to_remove }}">
+                    {{- filter.min_value.value | default: 0 | money_without_trailing_zeros }} – {{ filter.max_value.value | default: filter.range_max | money_without_trailing_zeros }}
+                    <span aria-hidden="true">&times;</span>
+                  </a>
+                </li>
+              {%- endif -%}
+            {%- endif -%}
+          {%- endfor -%}
+          <li><a class="sy-mc__clear" href="{{ collection.url }}?sort_by={{ sort_by }}">{{ 'sy.collection.clear_all' | t }}</a></li>
+        </ul>
+      {%- endif -%}
+
+      <div class="sy-mc__layout">
+        {%- if s.enable_filtering and collection.filters.size > 0 -%}
+          <div class="sy-mc__panel" id="{{ form_id }}-panel" data-sy-filter-panel>
+            <div class="sy-mc__panel-head">
+              <p class="sy-eyebrow">{{ 'sy.collection.filters' | t }}</p>
+              <button type="button" class="sy-mc__close" data-sy-filter-close aria-label="{{ 'sy.collection.close' | t }}">&times;</button>
+            </div>
+            <form id="{{ form_id }}" class="sy-mc__form" action="{{ collection.url }}" method="get" data-sy-filter-form>
+              <input type="hidden" name="sort_by" value="{{ sort_by | escape }}">
+              {%- for filter in collection.filters -%}
+                {%- liquid
+                  assign is_open = false
+                  if forloop.index <= s.open_filters or filter.active_values.size > 0
+                    assign is_open = true
+                  endif
+                -%}
+                <details class="sy-mc__filter"{% if is_open %} open{% endif %}>
+                  <summary>
+                    <span class="sy-eyebrow">{{ filter.label | escape }}</span>
+                    <span class="sy-mc__plus" aria-hidden="true"></span>
+                  </summary>
+                  {%- case filter.type -%}
+                    {%- when 'price_range' -%}
+                      <div class="sy-mc__price">
+                        <label>
+                          <span class="sy-visually-hidden">{{ 'sy.collection.price_from' | t }}</span>
+                          <input type="number" inputmode="decimal" min="0" step="1" name="{{ filter.min_value.param_name }}" value="{% if filter.min_value.value %}{{ filter.min_value.value | divided_by: 100 }}{% endif %}" placeholder="{{ 'sy.collection.price_from' | t }}">
+                        </label>
+                        <span aria-hidden="true">–</span>
+                        <label>
+                          <span class="sy-visually-hidden">{{ 'sy.collection.price_to' | t }}</span>
+                          <input type="number" inputmode="decimal" min="0" step="1" name="{{ filter.max_value.param_name }}" value="{% if filter.max_value.value %}{{ filter.max_value.value | divided_by: 100 }}{% endif %}" placeholder="{{ filter.range_max | divided_by: 100 }}">
+                        </label>
+                      </div>
+                    {%- else -%}
+                      <ul class="sy-mc__values" role="list">
+                        {%- for value in filter.values -%}
+                          {%- liquid
+                            assign disabled = false
+                            if value.count == 0 and value.active == false
+                              assign disabled = true
+                            endif
+                          -%}
+                          <li>
+                            <label class="sy-mc__check{% if disabled %} is-disabled{% endif %}">
+                              <input type="checkbox" name="{{ value.param_name }}" value="{{ value.value | escape }}"{% if value.active %} checked{% endif %}{% if disabled %} disabled{% endif %}>
+                              <span>{{ value.label | escape }}</span>
+                              <span class="sy-mc__n">{{ value.count }}</span>
+                            </label>
+                          </li>
+                        {%- endfor -%}
+                      </ul>
+                  {%- endcase -%}
+                </details>
+              {%- endfor -%}
+              <div class="sy-mc__apply">
+                <button type="submit" class="sy-btn">{{ 'sy.collection.show_results' | t }}</button>
+              </div>
+            </form>
+          </div>
+          <div class="sy-mc__backdrop" data-sy-filter-close></div>
+        {%- endif -%}
+
+        <div class="sy-mc__results">
+          <h2 class="sy-visually-hidden">{{ 'sy.collection.products' | t: collection: collection.title }}</h2>
+          {%- if collection.products.size > 0 -%}
+            <div class="sy-grid sy-mc__grid">
+              {%- for product in collection.products -%}
+                {%- if s.hide_sold and product.available == false -%}{%- continue -%}{%- endif -%}
+                {%- render 'sy-product-card', product: product, show_meta: s.show_meta, show_price: s.show_price, loading: 'lazy' -%}
+              {%- endfor -%}
+            </div>
+          {%- elsif show_demo -%}
+            <p class="sy-mc__demo-note sy-muted">{{ 'sy.collection.demo_note' | t }}</p>
+            <div class="sy-grid sy-mc__grid">
+              {%- if s.demo_style == 'sold' -%}
+                {%- assign demo = 'sy-demo-gone-01.jpg|Victorian Writing Box|England, c. 1880|$240|1;;sy-demo-gone-02.jpg|Oak Side Table|c. 1910|$380|1;;sy-demo-gone-03.jpg|Floral Enamel Box|England, 1979|$95|1;;sy-demo-gone-04.jpg|Murano Glass Bowl|Italy, c. 1960|$160|1' | split: ';;' -%}
+              {%- elsif s.demo_style == 'enamel' -%}
+                {%- assign demo = 'sy-demo-enamel-01.jpg|Spaniel Heart Box|England, c. 1985|$110|0;;sy-demo-enamel-02.jpg|Bluebird Box|England, c. 1990|$110|0;;sy-demo-enamel-03.jpg|Country Cottage Box|England, 1979|$95|0;;sy-demo-enamel-04.jpg|Rose Heart Box|England, c. 1985|$120|0;;sy-demo-enamel-05.jpg|Birds & Blossom Heart|England, 1992|$125|0;;sy-demo-enamel-06.jpg|Floral Medallion Box|England, c. 1988|$98|0' | split: ';;' -%}
+              {%- else -%}
+                {%- assign demo = 'sy-demo-new-01.jpg|Blue & White Platter|England, c. 1880|$145|0;;sy-demo-new-02.jpg|Amber Glass Tumblers, Set of Four|Italy, c. 1960|$85|0;;sy-demo-new-03.jpg|Brass Table Lamp|France, c. 1950|$320|0;;sy-demo-new-04.jpg|Silk Paisley Scarf|c. 1970|$45|0;;sy-demo-new-05.jpg|Copper Saucepan|France, c. 1900|$95|0;;sy-demo-new-06.jpg|Pressed Glass Cake Stand|c. 1930|$65|0;;sy-demo-new-07.jpg|Small Landscape in Oils|c. 1920|$150|0;;sy-demo-new-08.jpg|Hand-Painted Enamel Box|England, 1984|$110|0;;sy-demo-found-01.jpg|Bone China Teacup & Saucer|England, c. 1920|$38|0;;sy-demo-found-02.jpg|Silverplate Cake Server|c. 1910|$48|0;;sy-demo-found-03.jpg|Green Glass Coupes, Pair|c. 1930|$72|0;;sy-demo-found-04.jpg|Bronze Bird Figure|c. 1900|$180|0' | split: ';;' -%}
+              {%- endif -%}
+              {%- for item in demo -%}
+                {%- assign d = item | split: '|' -%}
+                {%- liquid
+                  assign is_sold = false
+                  if d[4] == '1'
+                    assign is_sold = true
+                  endif
+                -%}
+                {%- render 'sy-demo-card', image: d[0], title: d[1], meta: d[2], price: d[3], sold: is_sold, show_meta: s.show_meta, show_price: s.show_price -%}
+              {%- endfor -%}
+            </div>
+          {%- else -%}
+            <div class="sy-mc__empty">
+              {%- if s.empty_heading != blank -%}
+                <p class="sy-heading">{{ s.empty_heading | escape }}</p>
+              {%- else -%}
+                <p class="sy-heading">{{ 'sy.collection.empty' | t }}</p>
+              {%- endif -%}
+              {%- if s.empty_text != blank -%}<div class="sy-text sy-muted">{{ s.empty_text }}</div>{%- endif -%}
+              {%- if active_count > 0 -%}
+                {%- render 'sy-button', label: s.empty_button_label, url: collection.url, style: 'outline' -%}
+              {%- else -%}
+                {%- render 'sy-button', label: s.empty_button_label, url: s.empty_button_link, style: 'outline' -%}
+              {%- endif -%}
+            </div>
+          {%- endif -%}
+
+          {%- if paginate.pages > 1 -%}
+            <nav class="sy-mc__pagination" aria-label="{{ 'sy.collection.page' | t: page: paginate.current_page }}">
+              {%- if paginate.previous -%}
+                <a href="{{ paginate.previous.url }}" class="sy-mc__page sy-mc__page--nav" aria-label="{{ 'sy.collection.previous' | t }}">&larr;</a>
+              {%- endif -%}
+              {%- for part in paginate.parts -%}
+                {%- if part.is_link -%}
+                  <a href="{{ part.url }}" class="sy-mc__page">{{ part.title }}</a>
+                {%- elsif part.title == paginate.current_page -%}
+                  <span class="sy-mc__page is-current" aria-current="page">{{ part.title }}</span>
+                {%- else -%}
+                  <span class="sy-mc__page">{{ part.title }}</span>
+                {%- endif -%}
+              {%- endfor -%}
+              {%- if paginate.next -%}
+                <a href="{{ paginate.next.url }}" class="sy-mc__page sy-mc__page--nav" aria-label="{{ 'sy.collection.next' | t }}">&rarr;</a>
+              {%- endif -%}
+            </nav>
+          {%- endif -%}
+        </div>
+      </div>
+    {%- endpaginate -%}
+  </div>
+</section>
+
+{% stylesheet %}
+  .sy-mc__toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 16px 24px;
+    padding-block: 18px;
+    border-block: 1px solid var(--sy-line);
+  }
+
+  .sy-mc__toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--sy-fg);
+    font-family: var(--sy-font-label);
+    font-size: 13px;
+    letter-spacing: var(--sy-label-spacing);
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+
+  .sy-mc__count {
+    color: var(--sy-muted);
+  }
+
+  .sy-mc__sort {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-inline-start: auto;
+  }
+
+  .sy-mc__sort select {
+    min-height: 40px;
+    padding: 0 32px 0 12px;
+    border: 1px solid var(--sy-line);
+    border-radius: var(--sy-radius);
+    background: transparent;
+    color: var(--sy-fg);
+    font-family: var(--sy-font-body);
+    font-size: 15px;
+  }
+
+  .sy-mc__active {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 20px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .sy-mc__active a {
+    display: inline-flex;
+    gap: 8px;
+    padding: 7px 12px;
+    border: 1px solid var(--sy-fg);
+    border-radius: var(--sy-radius);
+    color: var(--sy-fg);
+    font-size: 14px;
+    text-decoration: none;
+  }
+
+  .sy-mc__active .sy-mc__clear {
+    border-color: transparent;
+    text-decoration: underline;
+    text-decoration-color: var(--sy-accent);
+    text-underline-offset: 3px;
+  }
+
+  .sy-mc__layout {
+    display: grid;
+    gap: 40px;
+    margin-block-start: 40px;
+  }
+
+  .sy-mc__results {
+    min-width: 0;
+  }
+
+  .sy-mc__demo-note {
+    margin: 0 0 20px;
+    font-size: 14px;
+  }
+
+  /* Filter panel: drawer by default, sidebar on desktop when chosen */
+  .sy-mc__panel {
+    position: fixed;
+    inset-block: 0;
+    inset-inline-start: 0;
+    z-index: 30;
+    display: flex;
+    flex-direction: column;
+    width: min(380px, 88vw);
+    padding: 28px;
+    overflow-y: auto;
+    background: var(--sy-bg);
+    transform: translateX(-100%);
+    transition: transform 0.35s ease;
+  }
+
+  .sy-mc.is-filter-open .sy-mc__panel {
+    transform: none;
+  }
+
+  .sy-mc__backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 29;
+    background: rgb(0 0 0 / 0.35);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+
+  .sy-mc.is-filter-open .sy-mc__backdrop {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .sy-mc__panel-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-block-end: 12px;
+  }
+
+  .sy-mc__close {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--sy-fg);
+    font-size: 28px;
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  .sy-mc__apply {
+    position: sticky;
+    inset-block-end: 0;
+    margin-block-start: auto;
+    padding-block: 20px 0;
+    background: var(--sy-bg);
+  }
+
+  .sy-mc__apply .sy-btn {
+    width: 100%;
+  }
+
+  @media screen and (min-width: 990px) {
+    .sy-mc--filters-sidebar .sy-mc__layout {
+      grid-template-columns: 240px minmax(0, 1fr);
+      gap: 56px;
+    }
+
+    .sy-mc--filters-sidebar .sy-mc__panel {
+      position: sticky;
+      inset-block-start: 120px;
+      z-index: auto;
+      align-self: start;
+      width: auto;
+      max-height: calc(100vh - 140px);
+      padding: 0;
+      transform: none;
+      background: transparent;
+    }
+
+    .sy-mc--filters-sidebar .sy-mc__panel-head,
+    .sy-mc--filters-sidebar .sy-mc__backdrop,
+    .sy-mc--filters-sidebar .sy-mc__toggle {
+      display: none;
+    }
+
+    .sy-js .sy-mc--filters-sidebar .sy-mc__apply {
+      display: none;
+    }
+  }
+
+  .sy-mc__filter {
+    border-block-end: 1px solid var(--sy-line);
+  }
+
+  .sy-mc__filter summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-block: 16px;
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .sy-mc__filter summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .sy-mc__plus {
+    position: relative;
+    width: 12px;
+    height: 12px;
+  }
+
+  .sy-mc__plus::before,
+  .sy-mc__plus::after {
+    content: '';
+    position: absolute;
+    inset-block-start: 50%;
+    inset-inline-start: 0;
+    width: 12px;
+    height: 1px;
+    background: currentColor;
+  }
+
+  .sy-mc__plus::after {
+    transform: rotate(90deg);
+    transition: transform 0.2s ease;
+  }
+
+  .sy-mc__filter[open] .sy-mc__plus::after {
+    transform: rotate(0);
+  }
+
+  .sy-mc__values {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 0;
+    padding: 0 0 18px;
+    list-style: none;
+  }
+
+  .sy-mc__check {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--sy-font-body);
+    font-size: 15px;
+    cursor: pointer;
+  }
+
+  .sy-mc__check input {
+    width: 16px;
+    height: 16px;
+    margin: 0;
+    accent-color: var(--sy-forest);
+  }
+
+  .sy-mc__check.is-disabled {
+    opacity: 0.45;
+    cursor: default;
+  }
+
+  .sy-mc__n {
+    margin-inline-start: auto;
+    color: var(--sy-muted);
+    font-size: 13px;
+  }
+
+  .sy-mc__price {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-block-end: 18px;
+  }
+
+  .sy-mc__price input {
+    width: 100%;
+    min-height: 42px;
+    padding: 0 10px;
+    border: 1px solid var(--sy-line);
+    border-radius: var(--sy-radius);
+    background: transparent;
+    color: var(--sy-fg);
+    font-family: var(--sy-font-body);
+    font-size: 15px;
+  }
+
+  .sy-mc__empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;
+    padding-block: 64px;
+    text-align: center;
+    --sy-h-d: 34px;
+    --sy-h-m: 28px;
+  }
+
+  .sy-mc__pagination {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    margin-block-start: 64px;
+  }
+
+  .sy-mc__page {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 42px;
+    min-height: 42px;
+    padding: 0 10px;
+    border: 1px solid transparent;
+    border-radius: var(--sy-radius);
+    color: var(--sy-fg);
+    font-family: var(--sy-font-body);
+    text-decoration: none;
+  }
+
+  .sy-mc__page:hover,
+  .sy-mc__page.is-current {
+    border-color: var(--sy-fg);
+  }
+{% endstylesheet %}
+
+{% javascript %}
+  (() => {
+    if (window.__syCollectionInit) return;
+    window.__syCollectionInit = true;
+
+    const setOpen = (section, open) => {
+      section.classList.toggle('is-filter-open', open);
+      const toggle = section.querySelector('[data-sy-filter-toggle]');
+      if (toggle) toggle.setAttribute('aria-expanded', String(open));
+    };
+
+    document.addEventListener('click', (event) => {
+      const toggle = event.target.closest('[data-sy-filter-toggle]');
+      if (toggle) {
+        setOpen(toggle.closest('.sy-mc'), true);
+        return;
+      }
+      const close = event.target.closest('[data-sy-filter-close]');
+      if (close) setOpen(close.closest('.sy-mc'), false);
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key !== 'Escape') return;
+      document.querySelectorAll('.sy-mc.is-filter-open').forEach((s) => setOpen(s, false));
+    });
+
+    let timer;
+    document.addEventListener('change', (event) => {
+      const sort = event.target.closest('[data-sy-sort]');
+      if (sort) {
+        sort.form.submit();
+        return;
+      }
+      const form = event.target.closest('[data-sy-filter-form]');
+      if (!form) return;
+      const sidebar = window.matchMedia('(min-width: 990px)').matches && form.closest('.sy-mc--filters-sidebar');
+      if (!sidebar) return;
+      clearTimeout(timer);
+      timer = setTimeout(() => form.submit(), event.target.type === 'number' ? 700 : 50);
+    });
+  })();
+{% endjavascript %}
+
+{% schema %}
+{
+  "name": "SY Collection grid",
+  "tag": "div",
+  "enabled_on": {
+    "templates": [
+      "collection"
+    ]
+  },
+  "settings": [
+    {
+      "type": "header",
+      "content": "Products"
+    },
+    {
+      "type": "range",
+      "id": "products_per_page",
+      "label": "Products per page",
+      "min": 8,
+      "max": 48,
+      "step": 4,
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "columns_desktop",
+      "label": "Columns (desktop)",
+      "min": 2,
+      "max": 5,
+      "step": 1,
+      "default": 4
+    },
+    {
+      "type": "select",
+      "id": "columns_mobile",
+      "label": "Columns (mobile)",
+      "options": [
+        {
+          "value": "1",
+          "label": "1"
+        },
+        {
+          "value": "2",
+          "label": "2"
+        }
+      ],
+      "default": "2"
+    },
+    {
+      "type": "checkbox",
+      "id": "hide_sold",
+      "label": "Hide sold pieces",
+      "default": false,
+      "info": "Main collections exclude sold pieces through their conditions. Leave off for the Sold Archive."
+    },
+    {
+      "type": "header",
+      "content": "Filtering and sorting"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_filtering",
+      "label": "Enable filtering",
+      "default": true,
+      "info": "Filters come from Shopify Search & Discovery (e.g. Maker, Era, Material, Price, Availability)."
+    },
+    {
+      "type": "select",
+      "id": "filter_layout",
+      "label": "Filter layout (desktop)",
+      "options": [
+        {
+          "value": "sidebar",
+          "label": "Sidebar"
+        },
+        {
+          "value": "drawer",
+          "label": "Drawer"
+        }
+      ],
+      "default": "sidebar"
+    },
+    {
+      "type": "range",
+      "id": "open_filters",
+      "label": "Filter groups open by default",
+      "min": 0,
+      "max": 6,
+      "step": 1,
+      "default": 2
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_sorting",
+      "label": "Enable sorting",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_count",
+      "label": "Show number of pieces",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Empty state"
+    },
+    {
+      "type": "text",
+      "id": "empty_heading",
+      "label": "Heading",
+      "default": "Nothing here just yet."
+    },
+    {
+      "type": "richtext",
+      "id": "empty_text",
+      "label": "Text",
+      "default": "<p>New finds are added weekly — check back soon, or browse what's newly collected.</p>"
+    },
+    {
+      "type": "text",
+      "id": "empty_button_label",
+      "label": "Button label",
+      "default": "See new arrivals"
+    },
+    {
+      "type": "url",
+      "id": "empty_button_link",
+      "label": "Button link"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_demo",
+      "label": "Show placeholder pieces while the store has no products",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "demo_style",
+      "label": "Placeholder style",
+      "options": [
+        {
+          "value": "available",
+          "label": "Available pieces"
+        },
+        {
+          "value": "sold",
+          "label": "Sold pieces"
+        },
+        {
+          "value": "enamel",
+          "label": "Enamel boxes"
+        }
+      ],
+      "default": "available"
+    },
+    {
+      "type": "header",
+      "content": "Product cards"
+    },
+    {
+      "type": "select",
+      "id": "card_ratio",
+      "label": "Image shape",
+      "options": [
+        {
+          "value": "theme",
+          "label": "Theme default"
+        },
+        {
+          "value": "4 / 5",
+          "label": "Portrait (4:5)"
+        },
+        {
+          "value": "1 / 1",
+          "label": "Square"
+        },
+        {
+          "value": "3 / 4",
+          "label": "Tall (3:4)"
+        },
+        {
+          "value": "4 / 3",
+          "label": "Landscape (4:3)"
+        }
+      ],
+      "default": "theme"
+    },
+    {
+      "type": "select",
+      "id": "image_fit",
+      "label": "Image fit",
+      "options": [
+        {
+          "value": "theme",
+          "label": "Theme default"
+        },
+        {
+          "value": "cover",
+          "label": "Fill"
+        },
+        {
+          "value": "contain",
+          "label": "Fit (show whole object)"
+        }
+      ],
+      "default": "theme"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_meta",
+      "label": "Show origin and era",
+      "default": true,
+      "info": "From product metafields custom.origin and custom.era. Hidden when empty."
+    },
+    {
+      "type": "checkbox",
+      "id": "show_price",
+      "label": "Show price",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Colours"
+    },
+    {
+      "type": "select",
+      "id": "color_scheme",
+      "label": "Colour scheme",
+      "options": [
+        {
+          "value": "cream",
+          "label": "Cream"
+        },
+        {
+          "value": "sage",
+          "label": "Light sage"
+        },
+        {
+          "value": "forest",
+          "label": "Forest green (dark)"
+        },
+        {
+          "value": "custom",
+          "label": "Custom"
+        }
+      ],
+      "default": "cream",
+      "info": "Brand colours are set in Theme settings > Subjectively Yours."
+    },
+    {
+      "type": "color",
+      "id": "custom_background",
+      "label": "Background",
+      "default": "#F5EDE1",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "custom_text",
+      "label": "Text",
+      "default": "#41523F",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "custom_muted",
+      "label": "Secondary text",
+      "default": "#5B4632",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "custom_accent",
+      "label": "Accent rules",
+      "default": "#B88D46",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "custom_button_background",
+      "label": "Button background",
+      "default": "#41523F",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "custom_button_text",
+      "label": "Button text",
+      "default": "#F5EDE1",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "custom_card_background",
+      "label": "Image background",
+      "default": "#EFE6D8",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "header",
+      "content": "Section layout"
+    },
+    {
+      "type": "select",
+      "id": "content_width",
+      "label": "Content width",
+      "options": [
+        {
+          "value": "page",
+          "label": "Brand width"
+        },
+        {
+          "value": "narrow",
+          "label": "Narrow"
+        },
+        {
+          "value": "wide",
+          "label": "Wide"
+        },
+        {
+          "value": "full",
+          "label": "Full width"
+        }
+      ],
+      "default": "page"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top padding (desktop)",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom padding (desktop)",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "default": 120
+    },
+    {
+      "type": "range",
+      "id": "padding_top_mobile",
+      "label": "Top padding (mobile)",
+      "min": 0,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom_mobile",
+      "label": "Bottom padding (mobile)",
+      "min": 0,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "default": 72
+    },
+    {
+      "type": "checkbox",
+      "id": "reveal",
+      "label": "Reveal on scroll",
+      "default": true,
+      "info": "Also needs Theme settings > Subjectively Yours > Reveal sections on scroll."
+    }
+  ],
+  "presets": [
+    {
+      "name": "SY Collection grid"
+    }
+  ]
+}
+{% endschema %}

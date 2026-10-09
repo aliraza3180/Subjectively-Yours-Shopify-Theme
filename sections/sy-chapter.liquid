@@ -1,0 +1,652 @@
+{%- render 'sy-base' -%}
+{%- liquid
+  assign s = section.settings
+  assign layout = s.media_layout
+-%}
+<section
+  id="sy-{{ section.id }}"
+  class="sy-section sy-scheme--{{ s.color_scheme }} sy-chapter sy-chapter--{{ layout }} sy-chapter--img-{{ s.media_side }}{% if s.lead %} sy-chapter--lead{% endif %}"
+  style="{% render 'sy-section-style', settings: s %} --sy-h-d: {{ s.heading_size }}px; --sy-h-m: {{ s.heading_size_mobile }}px; --sy-media-ratio: {{ s.image_ratio }}; --sy-chapter-size: {{ s.text_size }}px; --sy-lead-size: {{ s.lead_size }}px;"
+>
+  <div class="sy-container{% if s.content_width == 'full' %} sy-container--full{% endif %}{% if settings.sy_reveal and s.reveal %} sy-reveal{% endif %}">
+    <div class="sy-chapter__grid">
+      {%- if s.number != blank or s.label != blank -%}
+        <aside class="sy-chapter__marker">
+          {%- if s.number != blank -%}<span class="sy-chapter__num" aria-hidden="true">{{ s.number | escape }}</span>{%- endif -%}
+          <span class="sy-rule" aria-hidden="true"></span>
+          {%- if s.label != blank -%}<p class="sy-eyebrow">{{ s.label | escape }}</p>{%- endif -%}
+        </aside>
+      {%- endif -%}
+
+      <div class="sy-chapter__body">
+        {%- if s.heading != blank -%}
+          <h2 class="sy-heading sy-chapter__heading">{{ s.heading }}</h2>
+        {%- endif -%}
+
+        <div class="sy-chapter__content">
+          {%- if s.text != blank -%}
+            <div class="sy-text sy-chapter__text">{{ s.text }}</div>
+          {%- endif -%}
+
+          {%- if layout == 'beside' -%}
+            <figure class="sy-chapter__figure">
+              <div class="sy-media sy-media--ratio">
+                {%- render 'sy-chapter-image', image: s.image_1, demo: s.demo_image_1, sizes: '(min-width: 990px) 30vw, 100vw' -%}
+              </div>
+              {%- if s.caption != blank -%}<figcaption>{{ s.caption | escape }}</figcaption>{%- endif -%}
+            </figure>
+          {%- endif -%}
+        </div>
+
+        {%- if layout == 'below' -%}
+          <figure class="sy-chapter__figure sy-chapter__figure--wide">
+            <div class="sy-media sy-media--ratio">
+              {%- render 'sy-chapter-image', image: s.image_1, demo: s.demo_image_1, sizes: '(min-width: 990px) 70vw, 100vw' -%}
+            </div>
+            {%- if s.caption != blank -%}<figcaption>{{ s.caption | escape }}</figcaption>{%- endif -%}
+          </figure>
+        {%- elsif layout == 'pair' -%}
+          <figure class="sy-chapter__pair">
+            <div class="sy-media sy-media--ratio sy-chapter__pair-a">
+              {%- render 'sy-chapter-image', image: s.image_1, demo: s.demo_image_1, sizes: '(min-width: 990px) 40vw, 60vw' -%}
+            </div>
+            <div class="sy-media sy-media--ratio sy-chapter__pair-b">
+              {%- render 'sy-chapter-image', image: s.image_2, demo: s.demo_image_2, sizes: '(min-width: 990px) 28vw, 40vw' -%}
+            </div>
+            {%- if s.caption != blank -%}<figcaption>{{ s.caption | escape }}</figcaption>{%- endif -%}
+          </figure>
+        {%- endif -%}
+      </div>
+    </div>
+  </div>
+</section>
+
+{% stylesheet %}
+  .sy-chapter__grid {
+    display: grid;
+    gap: 28px;
+  }
+
+  @media screen and (min-width: 990px) {
+    .sy-chapter__grid {
+      grid-template-columns: minmax(0, 3fr) minmax(0, 9fr);
+      gap: 48px;
+    }
+  }
+
+  .sy-chapter__marker {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .sy-chapter__marker .sy-rule {
+    margin: 0;
+    width: 32px;
+  }
+
+  @media screen and (min-width: 990px) {
+    .sy-chapter__marker {
+      position: sticky;
+      inset-block-start: 140px;
+      flex-direction: column;
+      align-items: flex-start;
+      align-self: start;
+      gap: 14px;
+    }
+
+    .sy-chapter__marker .sy-rule {
+      width: 48px;
+    }
+  }
+
+  .sy-chapter__num {
+    font-family: var(--sy-font-heading);
+    font-size: 40px;
+    font-style: italic;
+    line-height: 1;
+    color: var(--sy-fg);
+  }
+
+  @media screen and (min-width: 990px) {
+    .sy-chapter__num {
+      font-size: 64px;
+    }
+  }
+
+  .sy-chapter__body {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+    min-width: 0;
+  }
+
+  .sy-chapter__heading {
+    max-width: 18em;
+  }
+
+  .sy-chapter__content {
+    display: grid;
+    gap: 36px;
+  }
+
+  @media screen and (min-width: 990px) {
+    .sy-chapter--beside .sy-chapter__content {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 4fr);
+      align-items: start;
+      gap: clamp(40px, 5vw, 80px);
+    }
+
+    .sy-chapter--beside.sy-chapter--img-left .sy-chapter__figure {
+      order: -1;
+    }
+
+    .sy-chapter--beside .sy-chapter__figure {
+      margin-block-start: 8px;
+    }
+  }
+
+  .sy-chapter__text {
+    max-width: 40rem;
+    font-size: calc(var(--sy-chapter-size) * 0.94);
+    line-height: 1.8;
+  }
+
+  @media screen and (min-width: 750px) {
+    .sy-chapter__text {
+      font-size: var(--sy-chapter-size);
+    }
+  }
+
+  .sy-chapter--lead .sy-chapter__text > p:first-child {
+    font-family: var(--sy-font-heading);
+    font-size: calc(var(--sy-lead-size) * 0.85);
+    line-height: 1.45;
+    color: var(--sy-fg);
+  }
+
+  @media screen and (min-width: 990px) {
+    .sy-chapter--lead .sy-chapter__text > p:first-child {
+      font-size: var(--sy-lead-size);
+    }
+  }
+
+  .sy-chapter__figure {
+    margin: 0;
+  }
+
+  .sy-chapter__figure figcaption,
+  .sy-chapter__pair figcaption {
+    margin-block-start: 12px;
+    font-family: var(--sy-font-body);
+    font-size: 14px;
+    font-style: italic;
+    color: var(--sy-muted);
+  }
+
+  .sy-chapter__pair {
+    display: grid;
+    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+    gap: 16px;
+    margin: 0;
+  }
+
+  .sy-chapter__pair-b {
+    --sy-media-ratio: 4 / 5;
+    align-self: end;
+  }
+
+  @media screen and (min-width: 990px) {
+    .sy-chapter__pair {
+      gap: 32px;
+    }
+
+    .sy-chapter__pair-b {
+      margin-block-end: -64px;
+    }
+  }
+
+  .sy-chapter__pair figcaption {
+    grid-column: 1 / -1;
+  }
+
+  @media screen and (min-width: 990px) {
+    .sy-chapter__pair figcaption {
+      margin-block-start: 80px;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "SY Story chapter",
+  "tag": "div",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Chapter marker"
+    },
+    {
+      "type": "text",
+      "id": "number",
+      "label": "Number",
+      "default": "I",
+      "info": "Roman numerals work beautifully: I, II, III…"
+    },
+    {
+      "type": "text",
+      "id": "label",
+      "label": "Label",
+      "default": "The chair"
+    },
+    {
+      "type": "header",
+      "content": "Text"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "heading",
+      "label": "Heading (optional)"
+    },
+    {
+      "type": "range",
+      "id": "heading_size",
+      "label": "Heading size (desktop)",
+      "min": 24,
+      "max": 88,
+      "step": 2,
+      "unit": "px",
+      "default": 52
+    },
+    {
+      "type": "range",
+      "id": "heading_size_mobile",
+      "label": "Heading size (mobile)",
+      "min": 20,
+      "max": 56,
+      "step": 2,
+      "unit": "px",
+      "default": 34
+    },
+    {
+      "type": "richtext",
+      "id": "text",
+      "label": "Text",
+      "default": "<p>Tell this part of the story.</p>"
+    },
+    {
+      "type": "checkbox",
+      "id": "lead",
+      "label": "Set first paragraph as a large lead",
+      "default": true,
+      "info": "Best when the first paragraph is short."
+    },
+    {
+      "type": "range",
+      "id": "lead_size",
+      "label": "Lead size (desktop)",
+      "min": 18,
+      "max": 36,
+      "step": 1,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "text_size",
+      "label": "Text size (desktop)",
+      "min": 15,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "default": 18
+    },
+    {
+      "type": "header",
+      "content": "Images"
+    },
+    {
+      "type": "select",
+      "id": "media_layout",
+      "label": "Image layout",
+      "options": [
+        {
+          "value": "none",
+          "label": "No image"
+        },
+        {
+          "value": "beside",
+          "label": "Beside the text"
+        },
+        {
+          "value": "below",
+          "label": "Wide, below the text"
+        },
+        {
+          "value": "pair",
+          "label": "Two images, offset"
+        }
+      ],
+      "default": "beside"
+    },
+    {
+      "type": "select",
+      "id": "media_side",
+      "label": "Image side (beside layout)",
+      "options": [
+        {
+          "value": "right",
+          "label": "Right"
+        },
+        {
+          "value": "left",
+          "label": "Left"
+        }
+      ],
+      "default": "right"
+    },
+    {
+      "type": "select",
+      "id": "image_ratio",
+      "label": "Image shape",
+      "options": [
+        {
+          "value": "4 / 5",
+          "label": "Portrait 4:5"
+        },
+        {
+          "value": "3 / 4",
+          "label": "Tall 3:4"
+        },
+        {
+          "value": "1 / 1",
+          "label": "Square"
+        },
+        {
+          "value": "3 / 2",
+          "label": "Landscape 3:2"
+        },
+        {
+          "value": "16 / 9",
+          "label": "Wide 16:9"
+        }
+      ],
+      "default": "4 / 5"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_1",
+      "label": "Image 1"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_2",
+      "label": "Image 2 (pair layout)"
+    },
+    {
+      "type": "text",
+      "id": "caption",
+      "label": "Caption"
+    },
+    {
+      "type": "select",
+      "id": "demo_image_1",
+      "label": "Placeholder 1 (until an image is chosen)",
+      "options": [
+        {
+          "value": "",
+          "label": "None"
+        },
+        {
+          "value": "sy-demo-about-hero.jpg",
+          "label": "About hero"
+        },
+        {
+          "value": "sy-demo-about-chair.jpg",
+          "label": "About chair"
+        },
+        {
+          "value": "sy-demo-about-band.jpg",
+          "label": "About band"
+        },
+        {
+          "value": "sy-demo-about-table.jpg",
+          "label": "About table"
+        },
+        {
+          "value": "sy-demo-about-vase.jpg",
+          "label": "About vase"
+        },
+        {
+          "value": "sy-demo-about-teaset.jpg",
+          "label": "About teaset"
+        },
+        {
+          "value": "sy-demo-collector.jpg",
+          "label": "Collector"
+        },
+        {
+          "value": "sy-demo-enamel-feature.jpg",
+          "label": "Enamel feature"
+        },
+        {
+          "value": "sy-demo-hero.jpg",
+          "label": "Hero"
+        }
+      ],
+      "default": ""
+    },
+    {
+      "type": "select",
+      "id": "demo_image_2",
+      "label": "Placeholder 2",
+      "options": [
+        {
+          "value": "",
+          "label": "None"
+        },
+        {
+          "value": "sy-demo-about-hero.jpg",
+          "label": "About hero"
+        },
+        {
+          "value": "sy-demo-about-chair.jpg",
+          "label": "About chair"
+        },
+        {
+          "value": "sy-demo-about-band.jpg",
+          "label": "About band"
+        },
+        {
+          "value": "sy-demo-about-table.jpg",
+          "label": "About table"
+        },
+        {
+          "value": "sy-demo-about-vase.jpg",
+          "label": "About vase"
+        },
+        {
+          "value": "sy-demo-about-teaset.jpg",
+          "label": "About teaset"
+        },
+        {
+          "value": "sy-demo-collector.jpg",
+          "label": "Collector"
+        },
+        {
+          "value": "sy-demo-enamel-feature.jpg",
+          "label": "Enamel feature"
+        },
+        {
+          "value": "sy-demo-hero.jpg",
+          "label": "Hero"
+        }
+      ],
+      "default": ""
+    },
+    {
+      "type": "header",
+      "content": "Colours"
+    },
+    {
+      "type": "select",
+      "id": "color_scheme",
+      "label": "Colour scheme",
+      "options": [
+        {
+          "value": "cream",
+          "label": "Cream"
+        },
+        {
+          "value": "sage",
+          "label": "Light sage"
+        },
+        {
+          "value": "forest",
+          "label": "Forest green (dark)"
+        },
+        {
+          "value": "custom",
+          "label": "Custom"
+        }
+      ],
+      "default": "cream",
+      "info": "Brand colours are set in Theme settings > Subjectively Yours."
+    },
+    {
+      "type": "color",
+      "id": "custom_background",
+      "label": "Background",
+      "default": "#F5EDE1",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "custom_text",
+      "label": "Text",
+      "default": "#41523F",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "custom_muted",
+      "label": "Secondary text",
+      "default": "#5B4632",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "custom_accent",
+      "label": "Accent rules",
+      "default": "#B88D46",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "custom_button_background",
+      "label": "Button background",
+      "default": "#41523F",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "custom_button_text",
+      "label": "Button text",
+      "default": "#F5EDE1",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "custom_card_background",
+      "label": "Image background",
+      "default": "#EFE6D8",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "header",
+      "content": "Section layout"
+    },
+    {
+      "type": "select",
+      "id": "content_width",
+      "label": "Content width",
+      "options": [
+        {
+          "value": "page",
+          "label": "Brand width"
+        },
+        {
+          "value": "narrow",
+          "label": "Narrow"
+        },
+        {
+          "value": "wide",
+          "label": "Wide"
+        },
+        {
+          "value": "full",
+          "label": "Full width"
+        }
+      ],
+      "default": "page"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top padding (desktop)",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "default": 96
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom padding (desktop)",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "default": 96
+    },
+    {
+      "type": "range",
+      "id": "padding_top_mobile",
+      "label": "Top padding (mobile)",
+      "min": 0,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "default": 56
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom_mobile",
+      "label": "Bottom padding (mobile)",
+      "min": 0,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "default": 56
+    },
+    {
+      "type": "checkbox",
+      "id": "reveal",
+      "label": "Reveal on scroll",
+      "default": true,
+      "info": "Also needs Theme settings > Subjectively Yours > Reveal sections on scroll."
+    }
+  ],
+  "presets": [
+    {
+      "name": "SY Story chapter"
+    }
+  ],
+  "disabled_on": {
+    "groups": [
+      "header"
+    ]
+  }
+}
+{% endschema %}

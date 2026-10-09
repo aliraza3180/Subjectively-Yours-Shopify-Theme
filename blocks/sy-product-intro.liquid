@@ -1,0 +1,126 @@
+{%- doc -%}
+  SY product intro for the product details column: category eyebrow, product title (H1)
+  and a quiet maker / origin / era line read from product metafields. Empty values are
+  never invented; they are simply left out.
+
+  @example
+  {% content_for 'block', type: 'sy-product-intro', id: 'sy-intro', closest.product: product %}
+{%- enddoc -%}
+{%- render 'sy-base' -%}
+{%- liquid
+  assign product = closest.product
+  assign bs = block.settings
+
+  assign eyebrow = ''
+  case bs.eyebrow_source
+    when 'auto'
+      assign eyebrow = product.metafields.custom.category.value | default: product.type
+      if eyebrow == blank
+        for c in product.collections
+          unless c.handle == 'all' or c.handle == 'frontpage' or c.handle == 'new-arrivals' or c.handle == 'sold-archive'
+            assign eyebrow = c.title
+            break
+          endunless
+        endfor
+      endif
+    when 'type'
+      assign eyebrow = product.type
+    when 'custom'
+      assign eyebrow = bs.eyebrow_text
+  endcase
+
+  assign parts = ''
+  if bs.show_maker
+    assign maker = product.metafields.custom.maker.value
+    if maker != blank
+      assign parts = parts | append: maker | append: '|'
+    endif
+  endif
+  if bs.show_origin
+    assign origin = product.metafields.custom.origin.value
+    if origin != blank
+      assign parts = parts | append: origin | append: '|'
+    endif
+  endif
+  if bs.show_era
+    assign era = product.metafields.custom.era.value
+    if era != blank
+      assign parts = parts | append: era | append: '|'
+    endif
+  endif
+  assign meta = parts | split: '|' | join: ' · '
+-%}
+<div
+  class="sy-scheme--cream sy-pintro"
+  style="--sy-h-d: {{ bs.title_size }}px; --sy-h-m: {{ bs.title_size_mobile }}px;"
+  {{ block.shopify_attributes }}
+>
+  {%- if eyebrow != blank -%}
+    <div>
+      <p class="sy-eyebrow">{{ eyebrow | escape }}</p>
+      {%- if bs.show_rule -%}
+        <span class="sy-rule" aria-hidden="true"></span>
+      {%- endif -%}
+    </div>
+  {%- endif -%}
+  <h1 class="sy-heading sy-pintro__title">{{ product.title | escape }}</h1>
+  {%- if meta != blank -%}
+    <p class="sy-pintro__meta">{{ meta | escape }}</p>
+  {%- endif -%}
+</div>
+
+{% stylesheet %}
+  .sy-pintro {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    width: 100%;
+  }
+
+  .sy-pintro__title {
+    line-height: 1.1;
+  }
+
+  .sy-pintro__meta {
+    margin: 0;
+    font-family: var(--sy-font-body);
+    font-size: 17px;
+    color: var(--sy-muted);
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "SY Product intro",
+  "tag": null,
+  "settings": [
+    {
+      "type": "select",
+      "id": "eyebrow_source",
+      "label": "Label above title",
+      "options": [
+        { "value": "auto", "label": "Category (metafield, type or collection)" },
+        { "value": "type", "label": "Product type" },
+        { "value": "custom", "label": "Custom text" },
+        { "value": "none", "label": "None" }
+      ],
+      "default": "auto",
+      "info": "Auto uses the custom.category metafield, then the product type, then the first collection."
+    },
+    {
+      "type": "text",
+      "id": "eyebrow_text",
+      "label": "Custom label",
+      "visible_if": "{{ block.settings.eyebrow_source == 'custom' }}"
+    },
+    { "type": "checkbox", "id": "show_rule", "label": "Show gold rule under label", "default": true },
+    { "type": "range", "id": "title_size", "label": "Title size (desktop)", "min": 24, "max": 72, "step": 2, "unit": "px", "default": 44 },
+    { "type": "range", "id": "title_size_mobile", "label": "Title size (mobile)", "min": 20, "max": 48, "step": 2, "unit": "px", "default": 32 },
+    { "type": "header", "content": "Details line" },
+    { "type": "checkbox", "id": "show_maker", "label": "Show maker", "default": true, "info": "Metafield custom.maker" },
+    { "type": "checkbox", "id": "show_origin", "label": "Show origin", "default": true, "info": "Metafield custom.origin" },
+    { "type": "checkbox", "id": "show_era", "label": "Show era", "default": true, "info": "Metafield custom.era" }
+  ],
+  "presets": [{ "name": "SY Product intro" }]
+}
+{% endschema %}

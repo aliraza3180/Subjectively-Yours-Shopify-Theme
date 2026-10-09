@@ -1,0 +1,414 @@
+{%- render 'sy-base' -%}
+{%- liquid
+  assign s = section.settings
+  assign title = s.title
+  if title == blank and page
+    assign title = page.title
+  endif
+  assign layout = s.layout
+  if layout != 'text' and s.image == blank and s.demo_image == blank
+    assign layout = 'text'
+  endif
+  assign img_style = 'object-position: ' | append: s.image.presentation.focal_point
+-%}
+<section
+  id="sy-{{ section.id }}"
+  class="sy-section sy-scheme--{{ s.color_scheme }} sy-phero sy-phero--{{ layout }} sy-phero--{{ s.alignment }}"
+  style="{% render 'sy-section-style', settings: s %} --sy-h-d: {{ s.heading_size }}px; --sy-h-m: {{ s.heading_size_mobile }}px; --sy-media-ratio: {{ s.image_ratio }};"
+>
+  <div class="sy-container{% if s.content_width == 'full' %} sy-container--full{% endif %}">
+    <div class="sy-phero__inner">
+      <div class="sy-phero__text">
+        {%- if s.eyebrow != blank -%}
+          <div>
+            <p class="sy-eyebrow">{{ s.eyebrow | escape }}</p>
+            {%- if s.show_rule -%}<span class="sy-rule" aria-hidden="true"></span>{%- endif -%}
+          </div>
+        {%- endif -%}
+        {%- if title != blank -%}<h1 class="sy-heading">{{ title }}</h1>{%- endif -%}
+        {%- if s.subtitle != blank -%}<p class="sy-phero__subtitle">{{ s.subtitle }}</p>{%- endif -%}
+        {%- if s.text != blank -%}<div class="sy-text sy-phero__intro">{{ s.text }}</div>{%- endif -%}
+        {%- if s.note != blank -%}<p class="sy-eyebrow sy-phero__note">{{ s.note | escape }}</p>{%- endif -%}
+      </div>
+      {%- if layout != 'text' -%}
+        <div class="sy-phero__media sy-media sy-media--ratio">
+          {%- if s.image != blank -%}
+            {{ s.image | image_url: width: 2400 | image_tag: widths: '600, 900, 1200, 1600, 2000, 2400', sizes: '(min-width: 990px) 50vw, 100vw', loading: 'eager', fetchpriority: 'high', alt: s.image.alt, style: img_style }}
+          {%- else -%}
+            <img src="{{ s.demo_image | asset_url }}" alt="" width="1500" height="1875" fetchpriority="high">
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+    </div>
+  </div>
+</section>
+
+{% stylesheet %}
+  .sy-phero__inner {
+    display: grid;
+    gap: 40px;
+  }
+
+  .sy-phero__text {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    max-width: 48rem;
+  }
+
+  .sy-phero--center .sy-phero__text {
+    align-items: center;
+    margin-inline: auto;
+    text-align: center;
+  }
+
+  .sy-phero--center .sy-rule {
+    margin-inline: auto;
+  }
+
+  @media screen and (min-width: 990px) {
+    .sy-phero--split .sy-phero__inner {
+      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+      align-items: end;
+      gap: clamp(48px, 6vw, 112px);
+    }
+
+    .sy-phero--split .sy-phero__text {
+      padding-block-end: 24px;
+    }
+  }
+
+  .sy-phero__subtitle {
+    margin: 0;
+    font-family: var(--sy-font-heading);
+    font-size: clamp(20px, 2.2vw, 28px);
+    font-style: italic;
+    line-height: 1.35;
+  }
+
+  .sy-phero__intro {
+    max-width: 38rem;
+  }
+
+  .sy-phero__note {
+    margin-block-start: 12px;
+    color: var(--sy-muted);
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "SY Page header",
+  "tag": "div",
+  "settings": [
+    {
+      "type": "select",
+      "id": "layout",
+      "label": "Layout",
+      "options": [
+        {
+          "value": "text",
+          "label": "Text only"
+        },
+        {
+          "value": "stacked",
+          "label": "Text above image"
+        },
+        {
+          "value": "split",
+          "label": "Text beside image"
+        }
+      ],
+      "default": "text"
+    },
+    {
+      "type": "select",
+      "id": "alignment",
+      "label": "Text alignment",
+      "options": [
+        {
+          "value": "left",
+          "label": "Left"
+        },
+        {
+          "value": "center",
+          "label": "Centre"
+        }
+      ],
+      "default": "left"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Image"
+    },
+    {
+      "type": "select",
+      "id": "demo_image",
+      "label": "Placeholder (until an image is chosen)",
+      "options": [
+        {
+          "value": "",
+          "label": "None"
+        },
+        {
+          "value": "sy-demo-about-hero.jpg",
+          "label": "Still life"
+        },
+        {
+          "value": "sy-demo-about-band.jpg",
+          "label": "Tea table"
+        },
+        {
+          "value": "sy-demo-hero.jpg",
+          "label": "Green room"
+        }
+      ],
+      "default": ""
+    },
+    {
+      "type": "select",
+      "id": "image_ratio",
+      "label": "Image shape",
+      "options": [
+        {
+          "value": "21 / 9",
+          "label": "Panorama 21:9"
+        },
+        {
+          "value": "16 / 9",
+          "label": "Wide 16:9"
+        },
+        {
+          "value": "3 / 2",
+          "label": "Landscape 3:2"
+        },
+        {
+          "value": "4 / 5",
+          "label": "Portrait 4:5"
+        },
+        {
+          "value": "3 / 4",
+          "label": "Tall 3:4"
+        }
+      ],
+      "default": "21 / 9"
+    },
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow label"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_rule",
+      "label": "Show gold rule under label",
+      "default": true
+    },
+    {
+      "type": "inline_richtext",
+      "id": "title",
+      "label": "Title",
+      "info": "Defaults to the page title."
+    },
+    {
+      "type": "range",
+      "id": "heading_size",
+      "label": "Title size (desktop)",
+      "min": 28,
+      "max": 104,
+      "step": 2,
+      "unit": "px",
+      "default": 72
+    },
+    {
+      "type": "range",
+      "id": "heading_size_mobile",
+      "label": "Title size (mobile)",
+      "min": 24,
+      "max": 64,
+      "step": 2,
+      "unit": "px",
+      "default": 42
+    },
+    {
+      "type": "inline_richtext",
+      "id": "subtitle",
+      "label": "Subtitle (italic)"
+    },
+    {
+      "type": "richtext",
+      "id": "text",
+      "label": "Intro text"
+    },
+    {
+      "type": "text",
+      "id": "note",
+      "label": "Small note (e.g. place or year)"
+    },
+    {
+      "type": "header",
+      "content": "Colours"
+    },
+    {
+      "type": "select",
+      "id": "color_scheme",
+      "label": "Colour scheme",
+      "options": [
+        {
+          "value": "cream",
+          "label": "Cream"
+        },
+        {
+          "value": "sage",
+          "label": "Light sage"
+        },
+        {
+          "value": "forest",
+          "label": "Forest green (dark)"
+        },
+        {
+          "value": "custom",
+          "label": "Custom"
+        }
+      ],
+      "default": "cream",
+      "info": "Brand colours are set in Theme settings > Subjectively Yours."
+    },
+    {
+      "type": "color",
+      "id": "custom_background",
+      "label": "Background",
+      "default": "#F5EDE1",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "custom_text",
+      "label": "Text",
+      "default": "#41523F",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "custom_muted",
+      "label": "Secondary text",
+      "default": "#5B4632",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "custom_accent",
+      "label": "Accent rules",
+      "default": "#B88D46",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "custom_button_background",
+      "label": "Button background",
+      "default": "#41523F",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "custom_button_text",
+      "label": "Button text",
+      "default": "#F5EDE1",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "custom_card_background",
+      "label": "Image background",
+      "default": "#EFE6D8",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "header",
+      "content": "Section layout"
+    },
+    {
+      "type": "select",
+      "id": "content_width",
+      "label": "Content width",
+      "options": [
+        {
+          "value": "page",
+          "label": "Brand width"
+        },
+        {
+          "value": "narrow",
+          "label": "Narrow"
+        },
+        {
+          "value": "wide",
+          "label": "Wide"
+        },
+        {
+          "value": "full",
+          "label": "Full width"
+        }
+      ],
+      "default": "page"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top padding (desktop)",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "default": 96
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom padding (desktop)",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "padding_top_mobile",
+      "label": "Top padding (mobile)",
+      "min": 0,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "default": 56
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom_mobile",
+      "label": "Bottom padding (mobile)",
+      "min": 0,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "default": 32
+    },
+    {
+      "type": "checkbox",
+      "id": "reveal",
+      "label": "Reveal on scroll",
+      "default": true,
+      "info": "Also needs Theme settings > Subjectively Yours > Reveal sections on scroll."
+    }
+  ],
+  "presets": [
+    {
+      "name": "SY Page header"
+    }
+  ],
+  "disabled_on": {
+    "groups": [
+      "header"
+    ]
+  }
+}
+{% endschema %}

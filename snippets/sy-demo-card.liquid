@@ -1,0 +1,33 @@
+{%- doc -%}
+  Renders a placeholder SY product card from a theme asset. Used only when a section has
+  no collection selected (or the collection is empty) so the homepage previews correctly
+  before real products exist.
+
+  @param {string} image - Theme asset filename
+  @param {string} title - Placeholder product title
+  @param {string} [meta] - Placeholder origin / era line
+  @param {string} [price] - Placeholder price text
+  @param {boolean} [sold] - Show as sold
+  @param {boolean} [show_meta] - Show the meta line
+  @param {boolean} [show_price] - Show the price
+
+  @example
+  {% render 'sy-demo-card', image: 'sy-demo-new-01.jpg', title: 'Blue & White Platter', meta: 'England, c. 1880', price: '$145' %}
+{%- enddoc -%}
+<div class="sy-card{% if sold %} sy-card--sold{% endif %}">
+  <div class="sy-card__media">
+    {%- if sold and settings.sy_sold_label != blank -%}
+      <span class="sy-card__badge">{{ settings.sy_sold_label | escape }}</span>
+    {%- endif -%}
+    <img src="{{ image | asset_url }}" alt="{{ title | escape }}" loading="lazy" width="600" height="600">
+  </div>
+  <div class="sy-card__info">
+    <h3 class="sy-card__title">{{ title | escape }}</h3>
+    {%- if show_meta and meta != blank -%}
+      <p class="sy-card__meta">{{ meta | escape }}</p>
+    {%- endif -%}
+    {%- if show_price and price != blank -%}
+      <p class="sy-card__price">{{ price | escape }}</p>
+    {%- endif -%}
+  </div>
+</div>

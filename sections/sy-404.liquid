@@ -1,0 +1,330 @@
+{%- render 'sy-base' -%}
+<section
+  id="sy-{{ section.id }}"
+  class="sy-section sy-scheme--{{ section.settings.color_scheme }} sy-404"
+  style="{% render 'sy-section-style', settings: section.settings %}"
+>
+  <div class="sy-container{% if section.settings.content_width == 'full' %} sy-container--full{% endif %}{% if settings.sy_reveal and section.settings.reveal %} sy-reveal{% endif %}">
+
+    {%- assign s = section.settings -%}
+    <div class="sy-nf" style="--sy-h-d: {{ s.heading_size }}px; --sy-h-m: {{ s.heading_size_mobile }}px;">
+      {%- if s.show_image -%}
+        <div class="sy-nf__image">
+          {%- if s.image != blank -%}
+            {{ s.image | image_url: width: 900 | image_tag: widths: '300, 600, 900', sizes: '320px', loading: 'eager', alt: '' }}
+          {%- else -%}
+            <img src="{{ 'sy-airship.png' | asset_url }}" alt="" width="900" height="411">
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+      {%- if s.eyebrow != blank -%}<p class="sy-eyebrow">{{ s.eyebrow | escape }}</p>{%- endif -%}
+      <h1 class="sy-heading">{{ s.heading }}</h1>
+      {%- if s.text != blank -%}<div class="sy-text sy-muted sy-nf__text">{{ s.text }}</div>{%- endif -%}
+      {%- if s.show_search -%}
+        <form action="{{ routes.search_url }}" method="get" role="search" class="sy-nf__search">
+          <label class="sy-visually-hidden" for="sy-nf-search-{{ section.id }}">{{ 'sy.general.search_placeholder' | t }}</label>
+          <input id="sy-nf-search-{{ section.id }}" type="search" name="q" placeholder="{{ 'sy.general.search_placeholder' | t }}">
+          <input type="hidden" name="type" value="product">
+        </form>
+      {%- endif -%}
+      <div class="sy-actions">
+        {%- render 'sy-button', label: s.button_label, url: s.button_link, style: 'solid' -%}
+        {%- render 'sy-button', label: s.button_label_2, url: s.button_link_2, style: 'link' -%}
+      </div>
+    </div>
+
+  </div>
+</section>
+
+{% stylesheet %}
+  .sy-nf {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 22px;
+    max-width: 44rem;
+    margin-inline: auto;
+    text-align: center;
+  }
+
+  .sy-nf__image {
+    width: 260px;
+    max-width: 70%;
+  }
+
+  .sy-nf__image img {
+    width: 100%;
+    height: auto;
+  }
+
+  .sy-nf__search {
+    width: 100%;
+    max-width: 420px;
+  }
+
+  .sy-nf__search input {
+    width: 100%;
+    min-height: 50px;
+    padding: 0 16px;
+    border: 1px solid var(--sy-fg);
+    border-radius: var(--sy-radius);
+    background: transparent;
+    color: var(--sy-fg);
+    font-family: var(--sy-font-body);
+    font-size: 16px;
+  }
+
+  .sy-nf .sy-actions {
+    justify-content: center;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "SY Not found",
+  "tag": "div",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "show_image",
+      "label": "Show brand graphic",
+      "default": true
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Graphic",
+      "info": "Defaults to the airship."
+    },
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow label",
+      "default": "Page not found"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "heading",
+      "label": "Heading",
+      "default": "This one has <em>already gone.</em>"
+    },
+    {
+      "type": "range",
+      "id": "heading_size",
+      "label": "Heading size (desktop)",
+      "min": 28,
+      "max": 96,
+      "step": 2,
+      "unit": "px",
+      "default": 60
+    },
+    {
+      "type": "range",
+      "id": "heading_size_mobile",
+      "label": "Heading size (mobile)",
+      "min": 24,
+      "max": 56,
+      "step": 2,
+      "unit": "px",
+      "default": 38
+    },
+    {
+      "type": "richtext",
+      "id": "text",
+      "label": "Text",
+      "default": "<p>Like the best finds, the page you're looking for has moved on. Try a search, or see what's newly collected.</p>"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_search",
+      "label": "Show search field",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Button label",
+      "default": "See new arrivals"
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "Button link"
+    },
+    {
+      "type": "text",
+      "id": "button_label_2",
+      "label": "Link label",
+      "default": "Browse the Sold Archive"
+    },
+    {
+      "type": "url",
+      "id": "button_link_2",
+      "label": "Link"
+    },
+    {
+      "type": "header",
+      "content": "Colours"
+    },
+    {
+      "type": "select",
+      "id": "color_scheme",
+      "label": "Colour scheme",
+      "options": [
+        {
+          "value": "cream",
+          "label": "Cream"
+        },
+        {
+          "value": "sage",
+          "label": "Light sage"
+        },
+        {
+          "value": "forest",
+          "label": "Forest green (dark)"
+        },
+        {
+          "value": "custom",
+          "label": "Custom"
+        }
+      ],
+      "default": "cream",
+      "info": "Brand colours are set in Theme settings > Subjectively Yours."
+    },
+    {
+      "type": "color",
+      "id": "custom_background",
+      "label": "Background",
+      "default": "#F5EDE1",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "custom_text",
+      "label": "Text",
+      "default": "#41523F",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "custom_muted",
+      "label": "Secondary text",
+      "default": "#5B4632",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "custom_accent",
+      "label": "Accent rules",
+      "default": "#B88D46",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "custom_button_background",
+      "label": "Button background",
+      "default": "#41523F",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "custom_button_text",
+      "label": "Button text",
+      "default": "#F5EDE1",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "custom_card_background",
+      "label": "Image background",
+      "default": "#EFE6D8",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "header",
+      "content": "Section layout"
+    },
+    {
+      "type": "select",
+      "id": "content_width",
+      "label": "Content width",
+      "options": [
+        {
+          "value": "page",
+          "label": "Brand width"
+        },
+        {
+          "value": "narrow",
+          "label": "Narrow"
+        },
+        {
+          "value": "wide",
+          "label": "Wide"
+        },
+        {
+          "value": "full",
+          "label": "Full width"
+        }
+      ],
+      "default": "page"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top padding (desktop)",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "default": 96
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom padding (desktop)",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "default": 140
+    },
+    {
+      "type": "range",
+      "id": "padding_top_mobile",
+      "label": "Top padding (mobile)",
+      "min": 0,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "default": 64
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom_mobile",
+      "label": "Bottom padding (mobile)",
+      "min": 0,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "default": 96
+    },
+    {
+      "type": "checkbox",
+      "id": "reveal",
+      "label": "Reveal on scroll",
+      "default": false,
+      "info": "Also needs Theme settings > Subjectively Yours > Reveal sections on scroll."
+    }
+  ],
+  "presets": [
+    {
+      "name": "SY Not found"
+    }
+  ],
+  "disabled_on": {
+    "groups": [
+      "header"
+    ]
+  }
+}
+{% endschema %}

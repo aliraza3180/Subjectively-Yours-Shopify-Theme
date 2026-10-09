@@ -1,0 +1,457 @@
+{%- render 'sy-base' -%}
+<section
+  id="sy-{{ section.id }}"
+  class="sy-section sy-scheme--{{ section.settings.color_scheme }} sy-product-grid"
+  style="{% render 'sy-section-style', settings: section.settings %}"
+>
+  <div class="sy-container{% if section.settings.content_width == 'full' %} sy-container--full{% endif %}{% if settings.sy_reveal and section.settings.reveal %} sy-reveal{% endif %}">
+
+    {%- liquid
+      assign s = section.settings
+      assign c = s.collection | default: collections.all
+      assign shown = 0
+      assign sizes = '(min-width: 990px) calc(100vw / ' | append: s.columns_desktop | append: '), (min-width: 750px) 33vw, 50vw'
+    -%}
+    {%- render 'sy-section-heading', settings: s -%}
+    <div
+      class="sy-grid{% if s.mobile_layout == 'carousel' %} sy-grid--carousel-mobile{% endif %}"
+      style="--sy-cols-d: {{ s.columns_desktop }}; --sy-cols-m: {{ s.columns_mobile }}; --sy-gap: {{ s.row_gap }}px; --sy-gap-x: {{ s.column_gap }}px;{% if s.card_ratio != 'theme' %} --sy-card-ratio-local: {{ s.card_ratio }};{% endif %}{% if s.image_fit != 'theme' %} --sy-card-fit-local: {{ s.image_fit }};{% endif %}"
+    >
+      {%- if c.products_count > 0 or collections.all.products_count > 0 -%}
+        {%- for product in c.products limit: 50 -%}
+          {%- if s.hide_sold and product.available == false -%}
+            {%- continue -%}
+          {%- endif -%}
+          {%- if shown >= s.products_to_show -%}
+            {%- break -%}
+          {%- endif -%}
+          {%- assign shown = shown | plus: 1 -%}
+          {%- render 'sy-product-card', product: product, show_meta: s.show_meta, show_price: s.show_price, sizes: sizes -%}
+        {%- endfor -%}
+      {%- else -%}
+        {%- assign demo = 'sy-demo-new-01.jpg|Blue & White Platter|England, c. 1880|$145;;sy-demo-new-02.jpg|Amber Glass Tumblers, Set of Four|Italy, c. 1960|$85;;sy-demo-new-03.jpg|Brass Table Lamp|France, c. 1950|$320;;sy-demo-new-04.jpg|Silk Paisley Scarf|c. 1970|$45;;sy-demo-new-05.jpg|Copper Saucepan|France, c. 1900|$95;;sy-demo-new-06.jpg|Pressed Glass Cake Stand|c. 1930|$65;;sy-demo-new-07.jpg|Small Landscape in Oils|c. 1920|$150;;sy-demo-new-08.jpg|Hand-Painted Enamel Box|England, 1984|$110' | split: ';;' -%}
+        {%- for item in demo limit: s.products_to_show -%}
+          {%- assign d = item | split: '|' -%}
+          {%- render 'sy-demo-card', image: d[0], title: d[1], meta: d[2], price: d[3], show_meta: s.show_meta, show_price: s.show_price -%}
+        {%- endfor -%}
+      {%- endif -%}
+    </div>
+    {%- if s.show_bottom_button and s.link_label != blank and s.link_url != blank -%}
+      <div class="sy-grid-footer">
+        {%- render 'sy-button', label: s.link_label, url: s.link_url, style: 'outline' -%}
+      </div>
+    {%- endif -%}
+
+  </div>
+</section>
+
+{% stylesheet %}
+  .sy-grid-footer {
+    display: flex;
+    justify-content: center;
+    margin-block-start: 48px;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "SY Product grid",
+  "tag": "div",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Heading"
+    },
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow label",
+      "default": "New arrivals"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_rule",
+      "label": "Show gold rule under label",
+      "default": true
+    },
+    {
+      "type": "inline_richtext",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Newly collected",
+      "info": "Use italic for an accent word."
+    },
+    {
+      "type": "range",
+      "id": "heading_size",
+      "label": "Heading size (desktop)",
+      "min": 24,
+      "max": 96,
+      "step": 2,
+      "unit": "px",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "heading_size_mobile",
+      "label": "Heading size (mobile)",
+      "min": 20,
+      "max": 64,
+      "step": 2,
+      "unit": "px",
+      "default": 34
+    },
+    {
+      "type": "select",
+      "id": "heading_alignment",
+      "label": "Heading alignment",
+      "options": [
+        {
+          "value": "left",
+          "label": "Left"
+        },
+        {
+          "value": "center",
+          "label": "Centre"
+        }
+      ],
+      "default": "left"
+    },
+    {
+      "type": "text",
+      "id": "link_label",
+      "label": "Link label",
+      "default": "View all new arrivals"
+    },
+    {
+      "type": "url",
+      "id": "link_url",
+      "label": "Link"
+    },
+    {
+      "type": "header",
+      "content": "Products"
+    },
+    {
+      "type": "collection",
+      "id": "collection",
+      "label": "Collection",
+      "info": "Shows placeholder pieces until a collection with products is selected."
+    },
+    {
+      "type": "range",
+      "id": "products_to_show",
+      "label": "Products to show",
+      "min": 2,
+      "max": 24,
+      "step": 1,
+      "default": 8
+    },
+    {
+      "type": "checkbox",
+      "id": "hide_sold",
+      "label": "Hide sold pieces",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Grid"
+    },
+    {
+      "type": "range",
+      "id": "columns_desktop",
+      "label": "Columns (desktop)",
+      "min": 2,
+      "max": 6,
+      "step": 1,
+      "default": 4
+    },
+    {
+      "type": "select",
+      "id": "columns_mobile",
+      "label": "Columns (mobile)",
+      "options": [
+        {
+          "value": "1",
+          "label": "1"
+        },
+        {
+          "value": "2",
+          "label": "2"
+        }
+      ],
+      "default": "2"
+    },
+    {
+      "type": "select",
+      "id": "mobile_layout",
+      "label": "Mobile layout",
+      "options": [
+        {
+          "value": "grid",
+          "label": "Grid"
+        },
+        {
+          "value": "carousel",
+          "label": "Swipe carousel"
+        }
+      ],
+      "default": "grid"
+    },
+    {
+      "type": "range",
+      "id": "row_gap",
+      "label": "Row gap (desktop)",
+      "min": 0,
+      "max": 80,
+      "step": 4,
+      "unit": "px",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "column_gap",
+      "label": "Column gap (desktop)",
+      "min": 0,
+      "max": 64,
+      "step": 4,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "checkbox",
+      "id": "show_bottom_button",
+      "label": "Show button below grid",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Product cards"
+    },
+    {
+      "type": "select",
+      "id": "card_ratio",
+      "label": "Image shape",
+      "options": [
+        {
+          "value": "theme",
+          "label": "Theme default"
+        },
+        {
+          "value": "4 / 5",
+          "label": "Portrait (4:5)"
+        },
+        {
+          "value": "1 / 1",
+          "label": "Square"
+        },
+        {
+          "value": "3 / 4",
+          "label": "Tall (3:4)"
+        },
+        {
+          "value": "4 / 3",
+          "label": "Landscape (4:3)"
+        }
+      ],
+      "default": "theme"
+    },
+    {
+      "type": "select",
+      "id": "image_fit",
+      "label": "Image fit",
+      "options": [
+        {
+          "value": "theme",
+          "label": "Theme default"
+        },
+        {
+          "value": "cover",
+          "label": "Fill"
+        },
+        {
+          "value": "contain",
+          "label": "Fit (show whole object)"
+        }
+      ],
+      "default": "theme"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_meta",
+      "label": "Show origin and era",
+      "default": true,
+      "info": "From product metafields custom.origin and custom.era. Hidden when empty."
+    },
+    {
+      "type": "checkbox",
+      "id": "show_price",
+      "label": "Show price",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Colours"
+    },
+    {
+      "type": "select",
+      "id": "color_scheme",
+      "label": "Colour scheme",
+      "options": [
+        {
+          "value": "cream",
+          "label": "Cream"
+        },
+        {
+          "value": "sage",
+          "label": "Light sage"
+        },
+        {
+          "value": "forest",
+          "label": "Forest green (dark)"
+        },
+        {
+          "value": "custom",
+          "label": "Custom"
+        }
+      ],
+      "default": "cream",
+      "info": "Brand colours are set in Theme settings > Subjectively Yours."
+    },
+    {
+      "type": "color",
+      "id": "custom_background",
+      "label": "Background",
+      "default": "#F5EDE1",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "custom_text",
+      "label": "Text",
+      "default": "#41523F",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "custom_muted",
+      "label": "Secondary text",
+      "default": "#5B4632",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "custom_accent",
+      "label": "Accent rules",
+      "default": "#B88D46",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "custom_button_background",
+      "label": "Button background",
+      "default": "#41523F",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "custom_button_text",
+      "label": "Button text",
+      "default": "#F5EDE1",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "custom_card_background",
+      "label": "Image background",
+      "default": "#EFE6D8",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "header",
+      "content": "Section layout"
+    },
+    {
+      "type": "select",
+      "id": "content_width",
+      "label": "Content width",
+      "options": [
+        {
+          "value": "page",
+          "label": "Brand width"
+        },
+        {
+          "value": "narrow",
+          "label": "Narrow"
+        },
+        {
+          "value": "wide",
+          "label": "Wide"
+        },
+        {
+          "value": "full",
+          "label": "Full width"
+        }
+      ],
+      "default": "page"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top padding (desktop)",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "default": 120
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom padding (desktop)",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "default": 120
+    },
+    {
+      "type": "range",
+      "id": "padding_top_mobile",
+      "label": "Top padding (mobile)",
+      "min": 0,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "default": 72
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom_mobile",
+      "label": "Bottom padding (mobile)",
+      "min": 0,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "default": 72
+    },
+    {
+      "type": "checkbox",
+      "id": "reveal",
+      "label": "Reveal on scroll",
+      "default": true,
+      "info": "Also needs Theme settings > Subjectively Yours > Reveal sections on scroll."
+    }
+  ],
+  "presets": [
+    {
+      "name": "SY Product grid"
+    }
+  ],
+  "disabled_on": {
+    "groups": [
+      "header"
+    ]
+  }
+}
+{% endschema %}

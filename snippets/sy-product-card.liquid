@@ -1,0 +1,86 @@
+{%- doc -%}
+  Renders a quiet SY product card: image (with optional hover image), sold tag,
+  title, origin and era line (from custom.origin / custom.era metafields, hidden when
+  empty) and price. Sold products keep their price, shown in the sold colour.
+
+  @param {product} product - The product to render
+  @param {boolean} [show_meta] - Show the origin / era line
+  @param {boolean} [show_price] - Show the price
+  @param {string} [sizes] - Image sizes attribute
+  @param {string} [loading] - Image loading attribute
+
+  @example
+  {% render 'sy-product-card', product: product, show_meta: true, show_price: true %}
+{%- enddoc -%}
+{%- liquid
+  assign sizes = sizes | default: '(min-width: 990px) 25vw, (min-width: 750px) 33vw, 50vw'
+  assign loading = loading | default: 'lazy'
+  assign sold = false
+  unless product.available
+    assign sold = true
+  endunless
+
+  assign origin = product.metafields.custom.origin.value
+  assign era = product.metafields.custom.era.value
+  assign meta = ''
+  if origin != blank and era != blank
+    assign meta = origin | append: ', ' | append: era
+  elsif origin != blank
+    assign meta = origin
+  elsif era != blank
+    assign meta = era
+  endif
+
+  assign primary = product.featured_media.preview_image
+  assign secondary = nil
+  if settings.sy_card_hover and product.media.size > 1
+    assign secondary = product.media[1].preview_image
+  endif
+-%}
+<a class="sy-card{% if sold %} sy-card--sold{% endif %}" href="{{ product.url }}">
+  <div class="sy-card__media">
+    {%- if sold and settings.sy_sold_label != blank -%}
+      <span class="sy-card__badge">{{ settings.sy_sold_label | escape }}</span>
+    {%- endif -%}
+    {%- if primary -%}
+      {{
+        primary
+        | image_url: width: 1000
+        | image_tag:
+          widths: '300, 450, 600, 800, 1000',
+          sizes: sizes,
+          loading: loading,
+          alt: product.title,
+          class: 'sy-card__img--primary'
+      }}
+      {%- if secondary -%}
+        {{
+          secondary
+          | image_url: width: 1000
+          | image_tag:
+            widths: '300, 450, 600, 800, 1000',
+            sizes: sizes,
+            loading: 'lazy',
+            alt: '',
+            class: 'sy-card__img--hover'
+        }}
+      {%- endif -%}
+    {%- else -%}
+      {{ 'product-1' | placeholder_svg_tag: 'sy-card__img--primary' }}
+    {%- endif -%}
+  </div>
+  <div class="sy-card__info">
+    <h3 class="sy-card__title">{{ product.title | escape }}</h3>
+    {%- if show_meta and meta != blank -%}
+      <p class="sy-card__meta">{{ meta | escape }}</p>
+    {%- endif -%}
+    {%- if show_price -%}
+      <p class="sy-card__price">
+        {%- if sold -%}
+          <span class="sy-visually-hidden">{{ settings.sy_sold_label | escape }}:</span>
+        {%- endif -%}
+        {{ product.price | money }}
+      </p>
+    {%- endif -%}
+  </div>
+</a>

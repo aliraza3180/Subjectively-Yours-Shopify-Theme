@@ -1,0 +1,527 @@
+{%- render 'sy-base' -%}
+{%- liquid
+  assign s = section.settings
+  assign form_id = 'SyContact-' | append: section.id
+-%}
+<section
+  id="sy-{{ section.id }}"
+  class="sy-section sy-scheme--{{ s.color_scheme }} sy-contact"
+  style="{% render 'sy-section-style', settings: s %} --sy-h-d: {{ s.heading_size }}px; --sy-h-m: {{ s.heading_size_mobile }}px;"
+>
+  <div class="sy-container{% if s.content_width == 'full' %} sy-container--full{% endif %}">
+    <div class="sy-contact__grid">
+      <div class="sy-contact__info">
+        {%- if s.heading != blank -%}<h2 class="sy-heading">{{ s.heading }}</h2>{%- endif -%}
+        {%- if s.text != blank -%}<div class="sy-text">{{ s.text }}</div>{%- endif -%}
+        {%- if section.blocks.size > 0 -%}
+          <dl class="sy-contact__details">
+            {%- for block in section.blocks -%}
+              <div class="sy-contact__detail" {{ block.shopify_attributes }}>
+                <dt class="sy-eyebrow">{{ block.settings.title | escape }}</dt>
+                <dd class="sy-text">{{ block.settings.text }}</dd>
+              </div>
+            {%- endfor -%}
+          </dl>
+        {%- endif -%}
+      </div>
+
+      <div class="sy-contact__form-wrap">
+        {%- form 'contact', id: form_id, class: 'sy-contact__form' -%}
+          {%- if form.posted_successfully? -%}
+            <div class="sy-contact__success" role="status" tabindex="-1">
+              <p class="sy-heading">{{ s.success_heading | escape }}</p>
+              <div class="sy-text">{{ s.success_text }}</div>
+            </div>
+          {%- else -%}
+            {%- if form.errors -%}
+              <div class="sy-contact__errors" role="alert">{{ form.errors | default_errors }}</div>
+            {%- endif -%}
+            <div class="sy-contact__row">
+              <div class="sy-field">
+                <label for="{{ form_id }}-name">{{ s.name_label | escape }}</label>
+                <input id="{{ form_id }}-name" type="text" name="contact[name]" autocomplete="name" value="{{ form.name | escape }}">
+              </div>
+              <div class="sy-field">
+                <label for="{{ form_id }}-email">{{ s.email_label | escape }} <span aria-hidden="true">*</span></label>
+                <input id="{{ form_id }}-email" type="email" name="contact[email]" autocomplete="email" required value="{{ form.email | escape }}">
+              </div>
+            </div>
+            {%- if s.show_phone -%}
+              <div class="sy-field">
+                <label for="{{ form_id }}-phone">{{ s.phone_label | escape }}</label>
+                <input id="{{ form_id }}-phone" type="tel" name="contact[phone]" autocomplete="tel" value="{{ form.phone | escape }}">
+              </div>
+            {%- endif -%}
+            {%- if s.show_topic -%}
+              <div class="sy-field">
+                <label for="{{ form_id }}-topic">{{ s.topic_label | escape }}</label>
+                <select id="{{ form_id }}-topic" name="contact[topic]">
+                  {%- assign topics = s.topics | split: ',' -%}
+                  {%- for topic in topics -%}
+                    <option value="{{ topic | strip | escape }}">{{ topic | strip | escape }}</option>
+                  {%- endfor -%}
+                </select>
+              </div>
+            {%- endif -%}
+            <div class="sy-field">
+              <label for="{{ form_id }}-piece">{{ s.piece_label | escape }}</label>
+              <input id="{{ form_id }}-piece" type="text" name="contact[piece]" value="" data-sy-piece>
+            </div>
+            <div class="sy-field">
+              <label for="{{ form_id }}-message">{{ s.message_label | escape }} <span aria-hidden="true">*</span></label>
+              <textarea id="{{ form_id }}-message" name="contact[body]" rows="6" required>{{ form.body }}</textarea>
+            </div>
+            <button type="submit" class="sy-btn">{{ s.button_label | escape }}</button>
+            {%- if s.privacy_note != blank -%}<div class="sy-text sy-muted sy-contact__note">{{ s.privacy_note }}</div>{%- endif -%}
+          {%- endif -%}
+        {%- endform -%}
+      </div>
+    </div>
+  </div>
+</section>
+
+{% stylesheet %}
+  .sy-contact__grid {
+    display: grid;
+    gap: 56px;
+  }
+
+  @media screen and (min-width: 990px) {
+    .sy-contact__grid {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+      gap: clamp(56px, 7vw, 120px);
+    }
+  }
+
+  .sy-contact__info {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+  }
+
+  .sy-contact__details {
+    display: flex;
+    flex-direction: column;
+    margin: 12px 0 0;
+    border-block-start: 1px solid var(--sy-line);
+  }
+
+  .sy-contact__detail {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding-block: 18px;
+    border-block-end: 1px solid var(--sy-line);
+  }
+
+  .sy-contact__detail dd {
+    margin: 0;
+    font-size: 16px;
+  }
+
+  .sy-contact__form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .sy-contact__row {
+    display: grid;
+    gap: 20px;
+  }
+
+  @media screen and (min-width: 750px) {
+    .sy-contact__row {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  .sy-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .sy-field label {
+    font-family: var(--sy-font-label);
+    font-size: var(--sy-label-size);
+    letter-spacing: var(--sy-label-spacing);
+    text-transform: uppercase;
+  }
+
+  .sy-field input,
+  .sy-field select,
+  .sy-field textarea {
+    width: 100%;
+    min-height: 50px;
+    padding: 12px 14px;
+    border: 1px solid var(--sy-line);
+    border-radius: var(--sy-radius);
+    background: color-mix(in srgb, var(--sy-bg) 60%, white);
+    color: var(--sy-fg);
+    font-family: var(--sy-font-body);
+    font-size: 16px;
+  }
+
+  .sy-field input:focus-visible,
+  .sy-field select:focus-visible,
+  .sy-field textarea:focus-visible {
+    outline: 2px solid var(--sy-accent);
+    outline-offset: 1px;
+  }
+
+  .sy-contact__form .sy-btn {
+    align-self: flex-start;
+  }
+
+  .sy-contact__success {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 40px;
+    border: 1px solid var(--sy-accent);
+    --sy-h-d: 34px;
+    --sy-h-m: 28px;
+  }
+
+  .sy-contact__errors {
+    padding: 14px 18px;
+    border: 1px solid currentColor;
+    font-size: 15px;
+  }
+
+  .sy-contact__note {
+    font-size: 14px;
+  }
+{% endstylesheet %}
+
+{% javascript %}
+  (() => {
+    const params = new URLSearchParams(window.location.search);
+    const piece = params.get('product');
+    if (!piece) return;
+    const fill = () => {
+      document.querySelectorAll('[data-sy-piece]').forEach((input) => {
+        if (!input.value) input.value = piece;
+      });
+    };
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fill);
+    else fill();
+  })();
+{% endjavascript %}
+
+{% schema %}
+{
+  "name": "SY Contact",
+  "tag": "div",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Introduction"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "heading",
+      "label": "Heading",
+      "default": "We'd love to <em>hear from you</em>"
+    },
+    {
+      "type": "range",
+      "id": "heading_size",
+      "label": "Heading size (desktop)",
+      "min": 24,
+      "max": 72,
+      "step": 2,
+      "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "heading_size_mobile",
+      "label": "Heading size (mobile)",
+      "min": 20,
+      "max": 48,
+      "step": 2,
+      "unit": "px",
+      "default": 30
+    },
+    {
+      "type": "richtext",
+      "id": "text",
+      "label": "Text",
+      "default": "<p>Questions about a piece, its condition or measurements? Want to arrange local pickup, or to know if we have something similar? Send a note and we'll reply personally.</p>"
+    },
+    {
+      "type": "header",
+      "content": "Form"
+    },
+    {
+      "type": "text",
+      "id": "name_label",
+      "label": "Name label",
+      "default": "Name"
+    },
+    {
+      "type": "text",
+      "id": "email_label",
+      "label": "Email label",
+      "default": "Email"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_phone",
+      "label": "Show phone field",
+      "default": false
+    },
+    {
+      "type": "text",
+      "id": "phone_label",
+      "label": "Phone label",
+      "default": "Phone"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_topic",
+      "label": "Show topic menu",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "topic_label",
+      "label": "Topic label",
+      "default": "What's it about?"
+    },
+    {
+      "type": "text",
+      "id": "topics",
+      "label": "Topics (comma separated)",
+      "default": "A specific piece, Local pickup, Shipping, An order, Something else"
+    },
+    {
+      "type": "text",
+      "id": "piece_label",
+      "label": "Piece field label",
+      "default": "Piece (if any)",
+      "info": "Pre-filled automatically from the product page's 'Ask about this piece' button."
+    },
+    {
+      "type": "text",
+      "id": "message_label",
+      "label": "Message label",
+      "default": "Message"
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Button label",
+      "default": "Send message"
+    },
+    {
+      "type": "text",
+      "id": "success_heading",
+      "label": "Success heading",
+      "default": "Thank you — your note is on its way."
+    },
+    {
+      "type": "richtext",
+      "id": "success_text",
+      "label": "Success text",
+      "default": "<p>We'll reply by email as soon as we can.</p>"
+    },
+    {
+      "type": "richtext",
+      "id": "privacy_note",
+      "label": "Small print"
+    },
+    {
+      "type": "header",
+      "content": "Colours"
+    },
+    {
+      "type": "select",
+      "id": "color_scheme",
+      "label": "Colour scheme",
+      "options": [
+        {
+          "value": "cream",
+          "label": "Cream"
+        },
+        {
+          "value": "sage",
+          "label": "Light sage"
+        },
+        {
+          "value": "forest",
+          "label": "Forest green (dark)"
+        },
+        {
+          "value": "custom",
+          "label": "Custom"
+        }
+      ],
+      "default": "cream",
+      "info": "Brand colours are set in Theme settings > Subjectively Yours."
+    },
+    {
+      "type": "color",
+      "id": "custom_background",
+      "label": "Background",
+      "default": "#F5EDE1",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "custom_text",
+      "label": "Text",
+      "default": "#41523F",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "custom_muted",
+      "label": "Secondary text",
+      "default": "#5B4632",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "custom_accent",
+      "label": "Accent rules",
+      "default": "#B88D46",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "custom_button_background",
+      "label": "Button background",
+      "default": "#41523F",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "custom_button_text",
+      "label": "Button text",
+      "default": "#F5EDE1",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "custom_card_background",
+      "label": "Image background",
+      "default": "#EFE6D8",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "header",
+      "content": "Section layout"
+    },
+    {
+      "type": "select",
+      "id": "content_width",
+      "label": "Content width",
+      "options": [
+        {
+          "value": "page",
+          "label": "Brand width"
+        },
+        {
+          "value": "narrow",
+          "label": "Narrow"
+        },
+        {
+          "value": "wide",
+          "label": "Wide"
+        },
+        {
+          "value": "full",
+          "label": "Full width"
+        }
+      ],
+      "default": "page"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top padding (desktop)",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom padding (desktop)",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "default": 120
+    },
+    {
+      "type": "range",
+      "id": "padding_top_mobile",
+      "label": "Top padding (mobile)",
+      "min": 0,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom_mobile",
+      "label": "Bottom padding (mobile)",
+      "min": 0,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "default": 72
+    },
+    {
+      "type": "checkbox",
+      "id": "reveal",
+      "label": "Reveal on scroll",
+      "default": false,
+      "info": "Also needs Theme settings > Subjectively Yours > Reveal sections on scroll."
+    }
+  ],
+  "blocks": [
+    {
+      "type": "detail",
+      "name": "Contact detail",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title",
+          "default": "Local pickup"
+        },
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "Text",
+          "default": "<p>Sebastian, Florida — by appointment.</p>"
+        }
+      ]
+    }
+  ],
+  "max_blocks": 6,
+  "presets": [
+    {
+      "name": "SY Contact",
+      "blocks": [
+        {
+          "type": "detail"
+        }
+      ]
+    }
+  ],
+  "disabled_on": {
+    "groups": [
+      "header"
+    ]
+  }
+}
+{% endschema %}

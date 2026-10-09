@@ -1,0 +1,464 @@
+{%- render 'sy-base' -%}
+<section
+  id="sy-{{ section.id }}"
+  class="sy-section sy-scheme--{{ section.settings.color_scheme }} sy-found-gone"
+  style="{% render 'sy-section-style', settings: section.settings %}"
+>
+  <div class="sy-container{% if section.settings.content_width == 'full' %} sy-container--full{% endif %}{% if settings.sy_reveal and section.settings.reveal %} sy-reveal{% endif %}">
+
+    {%- assign s = section.settings -%}
+    {%- render 'sy-section-heading', settings: s -%}
+    <div class="sy-fg{% if s.show_divider %} sy-fg--divider{% endif %}"{% if s.card_ratio != 'theme' %} style="--sy-card-ratio-local: {{ s.card_ratio }};"{% endif %}>
+
+        <div class="sy-fg__side">
+          {%- if s.left_heading != blank -%}
+            <p class="sy-eyebrow sy-fg__label">{{ s.left_heading | escape }}</p>
+          {%- endif -%}
+          <div class="sy-grid" style="--sy-cols-d: {{ s.columns_per_side }}; --sy-cols-m: 2; --sy-gap: 36px; --sy-gap-x: 20px;">
+            {%- assign c = s.left_collection | default: collections.all -%}
+            {%- if c.products_count > 0 or collections.all.products_count > 0 -%}
+              {%- for product in c.products limit: s.left_count -%}
+                {%- render 'sy-product-card', product: product, show_meta: s.show_meta, show_price: s.show_price, sizes: '(min-width: 990px) 20vw, 50vw' -%}
+              {%- endfor -%}
+            {%- else -%}
+              {%- assign demo = 'sy-demo-found-01.jpg|Bone China Teacup & Saucer|England, c. 1920|$38;;sy-demo-found-02.jpg|Silverplate Cake Server|c. 1910|$48;;sy-demo-found-03.jpg|Green Glass Coupes, Pair|c. 1930|$72;;sy-demo-found-04.jpg|Bronze Bird Figure|c. 1900|$180' | split: ';;' -%}
+              {%- for item in demo limit: s.left_count -%}
+                {%- assign d = item | split: '|' -%}
+                {%- render 'sy-demo-card', image: d[0], title: d[1], meta: d[2], price: d[3], sold: false, show_meta: s.show_meta, show_price: s.show_price -%}
+              {%- endfor -%}
+            {%- endif -%}
+          </div>
+        </div>
+
+        <div class="sy-fg__side">
+          {%- if s.right_heading != blank -%}
+            <p class="sy-eyebrow sy-fg__label">{{ s.right_heading | escape }}</p>
+          {%- endif -%}
+          <div class="sy-grid" style="--sy-cols-d: {{ s.columns_per_side }}; --sy-cols-m: 2; --sy-gap: 36px; --sy-gap-x: 20px;">
+            {%- assign c = s.right_collection | default: collections.all -%}
+            {%- if c.products_count > 0 or collections.all.products_count > 0 -%}
+              {%- for product in c.products limit: s.right_count -%}
+                {%- render 'sy-product-card', product: product, show_meta: s.show_meta, show_price: s.show_price, sizes: '(min-width: 990px) 20vw, 50vw' -%}
+              {%- endfor -%}
+            {%- else -%}
+              {%- assign demo = 'sy-demo-gone-01.jpg|Victorian Writing Box|England, c. 1880|$240;;sy-demo-gone-02.jpg|Oak Side Table|c. 1910|$380;;sy-demo-gone-03.jpg|Floral Enamel Box|England, 1979|$95;;sy-demo-gone-04.jpg|Murano Glass Bowl|Italy, c. 1960|$160' | split: ';;' -%}
+              {%- for item in demo limit: s.right_count -%}
+                {%- assign d = item | split: '|' -%}
+                {%- render 'sy-demo-card', image: d[0], title: d[1], meta: d[2], price: d[3], sold: true, show_meta: s.show_meta, show_price: s.show_price -%}
+              {%- endfor -%}
+            {%- endif -%}
+          </div>
+        </div>
+
+    </div>
+
+  </div>
+</section>
+
+{% stylesheet %}
+  .sy-fg {
+    display: grid;
+    gap: 56px;
+  }
+
+  @media screen and (min-width: 990px) {
+    .sy-fg {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 64px;
+    }
+
+    .sy-fg--divider .sy-fg__side + .sy-fg__side {
+      position: relative;
+    }
+
+    .sy-fg--divider .sy-fg__side + .sy-fg__side::before {
+      content: '';
+      position: absolute;
+      inset-block: 0;
+      inset-inline-start: -32px;
+      width: 1px;
+      background: var(--sy-accent);
+      opacity: 0.6;
+    }
+  }
+
+  .sy-fg__label {
+    margin-block-end: 24px;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "SY Recently found / gone",
+  "tag": "div",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Heading"
+    },
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow label",
+      "default": "The catalogue"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_rule",
+      "label": "Show gold rule under label",
+      "default": true
+    },
+    {
+      "type": "inline_richtext",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Recently found, <em>recently gone</em>",
+      "info": "Use italic for an accent word."
+    },
+    {
+      "type": "range",
+      "id": "heading_size",
+      "label": "Heading size (desktop)",
+      "min": 24,
+      "max": 96,
+      "step": 2,
+      "unit": "px",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "heading_size_mobile",
+      "label": "Heading size (mobile)",
+      "min": 20,
+      "max": 64,
+      "step": 2,
+      "unit": "px",
+      "default": 34
+    },
+    {
+      "type": "select",
+      "id": "heading_alignment",
+      "label": "Heading alignment",
+      "options": [
+        {
+          "value": "left",
+          "label": "Left"
+        },
+        {
+          "value": "center",
+          "label": "Centre"
+        }
+      ],
+      "default": "left"
+    },
+    {
+      "type": "text",
+      "id": "link_label",
+      "label": "Link label",
+      "default": "Visit the Sold Archive"
+    },
+    {
+      "type": "url",
+      "id": "link_url",
+      "label": "Link"
+    },
+    {
+      "type": "header",
+      "content": "Left: recently found"
+    },
+    {
+      "type": "text",
+      "id": "left_heading",
+      "label": "Label",
+      "default": "Recently found"
+    },
+    {
+      "type": "collection",
+      "id": "left_collection",
+      "label": "Collection",
+      "info": "e.g. New Arrivals."
+    },
+    {
+      "type": "range",
+      "id": "left_count",
+      "label": "Products",
+      "min": 1,
+      "max": 8,
+      "step": 1,
+      "default": 4
+    },
+    {
+      "type": "header",
+      "content": "Right: recently gone"
+    },
+    {
+      "type": "text",
+      "id": "right_heading",
+      "label": "Label",
+      "default": "Recently gone"
+    },
+    {
+      "type": "collection",
+      "id": "right_collection",
+      "label": "Collection",
+      "info": "e.g. Sold Archive, sorted by newest. Sold pieces show the sold tag and greyed price automatically."
+    },
+    {
+      "type": "range",
+      "id": "right_count",
+      "label": "Products",
+      "min": 1,
+      "max": 8,
+      "step": 1,
+      "default": 4
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "columns_per_side",
+      "label": "Columns per side (desktop)",
+      "min": 1,
+      "max": 4,
+      "step": 1,
+      "default": 2
+    },
+    {
+      "type": "checkbox",
+      "id": "show_divider",
+      "label": "Show gold divider between sides",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Product cards"
+    },
+    {
+      "type": "select",
+      "id": "card_ratio",
+      "label": "Image shape",
+      "options": [
+        {
+          "value": "theme",
+          "label": "Theme default"
+        },
+        {
+          "value": "4 / 5",
+          "label": "Portrait (4:5)"
+        },
+        {
+          "value": "1 / 1",
+          "label": "Square"
+        },
+        {
+          "value": "3 / 4",
+          "label": "Tall (3:4)"
+        },
+        {
+          "value": "4 / 3",
+          "label": "Landscape (4:3)"
+        }
+      ],
+      "default": "theme"
+    },
+    {
+      "type": "select",
+      "id": "image_fit",
+      "label": "Image fit",
+      "options": [
+        {
+          "value": "theme",
+          "label": "Theme default"
+        },
+        {
+          "value": "cover",
+          "label": "Fill"
+        },
+        {
+          "value": "contain",
+          "label": "Fit (show whole object)"
+        }
+      ],
+      "default": "theme"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_meta",
+      "label": "Show origin and era",
+      "default": true,
+      "info": "From product metafields custom.origin and custom.era. Hidden when empty."
+    },
+    {
+      "type": "checkbox",
+      "id": "show_price",
+      "label": "Show price",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Colours"
+    },
+    {
+      "type": "select",
+      "id": "color_scheme",
+      "label": "Colour scheme",
+      "options": [
+        {
+          "value": "cream",
+          "label": "Cream"
+        },
+        {
+          "value": "sage",
+          "label": "Light sage"
+        },
+        {
+          "value": "forest",
+          "label": "Forest green (dark)"
+        },
+        {
+          "value": "custom",
+          "label": "Custom"
+        }
+      ],
+      "default": "cream",
+      "info": "Brand colours are set in Theme settings > Subjectively Yours."
+    },
+    {
+      "type": "color",
+      "id": "custom_background",
+      "label": "Background",
+      "default": "#F5EDE1",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "custom_text",
+      "label": "Text",
+      "default": "#41523F",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "custom_muted",
+      "label": "Secondary text",
+      "default": "#5B4632",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "custom_accent",
+      "label": "Accent rules",
+      "default": "#B88D46",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "custom_button_background",
+      "label": "Button background",
+      "default": "#41523F",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "custom_button_text",
+      "label": "Button text",
+      "default": "#F5EDE1",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "custom_card_background",
+      "label": "Image background",
+      "default": "#EFE6D8",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "header",
+      "content": "Section layout"
+    },
+    {
+      "type": "select",
+      "id": "content_width",
+      "label": "Content width",
+      "options": [
+        {
+          "value": "page",
+          "label": "Brand width"
+        },
+        {
+          "value": "narrow",
+          "label": "Narrow"
+        },
+        {
+          "value": "wide",
+          "label": "Wide"
+        },
+        {
+          "value": "full",
+          "label": "Full width"
+        }
+      ],
+      "default": "page"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top padding (desktop)",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "default": 120
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom padding (desktop)",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "default": 120
+    },
+    {
+      "type": "range",
+      "id": "padding_top_mobile",
+      "label": "Top padding (mobile)",
+      "min": 0,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "default": 72
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom_mobile",
+      "label": "Bottom padding (mobile)",
+      "min": 0,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "default": 72
+    },
+    {
+      "type": "checkbox",
+      "id": "reveal",
+      "label": "Reveal on scroll",
+      "default": true,
+      "info": "Also needs Theme settings > Subjectively Yours > Reveal sections on scroll."
+    }
+  ],
+  "presets": [
+    {
+      "name": "SY Recently found / gone"
+    }
+  ],
+  "disabled_on": {
+    "groups": [
+      "header"
+    ]
+  }
+}
+{% endschema %}

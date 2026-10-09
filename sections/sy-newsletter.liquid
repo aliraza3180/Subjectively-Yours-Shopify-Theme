@@ -1,0 +1,472 @@
+{%- render 'sy-base' -%}
+<section
+  id="sy-{{ section.id }}"
+  class="sy-section sy-scheme--{{ section.settings.color_scheme }} sy-newsletter-section"
+  style="{% render 'sy-section-style', settings: section.settings %}"
+>
+  <div class="sy-container{% if section.settings.content_width == 'full' %} sy-container--full{% endif %}{% if settings.sy_reveal and section.settings.reveal %} sy-reveal{% endif %}">
+
+    {%- liquid
+      assign s = section.settings
+      assign form_id = 'sy-newsletter-' | append: section.id
+    -%}
+    <div class="sy-newsletter sy-newsletter--{{ s.layout }}" style="--sy-h-d: {{ s.heading_size }}px; --sy-h-m: {{ s.heading_size_mobile }}px; --sy-form-max: {{ s.form_width }}px;">
+      <div class="sy-newsletter__text">
+        {%- if s.eyebrow != blank -%}
+          <div>
+            <p class="sy-eyebrow">{{ s.eyebrow | escape }}</p>
+            {%- if s.show_rule -%}
+              <span class="sy-rule" aria-hidden="true"></span>
+            {%- endif -%}
+          </div>
+        {%- endif -%}
+        {%- if s.heading != blank -%}
+          <h2 class="sy-heading">{{ s.heading }}</h2>
+        {%- endif -%}
+        {%- if s.text != blank -%}
+          <div class="sy-text">{{ s.text }}</div>
+        {%- endif -%}
+      </div>
+      {%- form 'customer', id: form_id, class: 'sy-newsletter__form' -%}
+        <input type="hidden" name="contact[tags]" value="{{ s.customer_tags | escape }}">
+        {%- if form.posted_successfully? -%}
+          <p class="sy-newsletter__message" role="status">{{ s.success_message | escape }}</p>
+        {%- else -%}
+          <div class="sy-newsletter__field sy-newsletter__field--{{ s.input_style }}">
+            <label class="sy-visually-hidden" for="{{ form_id }}-email">{{ s.placeholder | escape }}</label>
+            <input
+              id="{{ form_id }}-email"
+              type="email"
+              name="contact[email]"
+              autocomplete="email"
+              autocapitalize="off"
+              spellcheck="false"
+              required
+              placeholder="{{ s.placeholder | escape }}"
+              {% if form.errors %}
+                aria-invalid="true" aria-describedby="{{ form_id }}-error"
+              {% endif %}
+            >
+            <button type="submit" class="sy-btn">{{ s.button_label | escape }}</button>
+          </div>
+          {%- if form.errors -%}
+            <p id="{{ form_id }}-error" class="sy-newsletter__message" role="alert">
+              {{- form.errors.translated_fields.email | capitalize }}
+              {{ form.errors.messages.email -}}
+            </p>
+          {%- endif -%}
+          {%- if s.privacy_note != blank -%}
+            <div class="sy-newsletter__note">{{ s.privacy_note }}</div>
+          {%- endif -%}
+        {%- endif -%}
+      {%- endform -%}
+    </div>
+
+  </div>
+</section>
+
+{% stylesheet %}
+  .sy-newsletter {
+    display: grid;
+    gap: 32px;
+  }
+
+  .sy-newsletter__text {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .sy-newsletter--center {
+    justify-items: center;
+    text-align: center;
+  }
+
+  .sy-newsletter--center .sy-newsletter__text {
+    align-items: center;
+  }
+
+  .sy-newsletter--center .sy-rule {
+    margin-inline: auto;
+  }
+
+  @media screen and (min-width: 990px) {
+    .sy-newsletter--split {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      align-items: end;
+      gap: 64px;
+    }
+  }
+
+  .sy-newsletter__form {
+    width: 100%;
+    max-width: var(--sy-form-max);
+  }
+
+  .sy-newsletter__field {
+    display: flex;
+    gap: 0;
+  }
+
+  .sy-newsletter__field input {
+    flex: 1 1 auto;
+    min-width: 0;
+    min-height: 52px;
+    padding: 0 18px;
+    border: 1px solid var(--sy-fg);
+    border-inline-end: 0;
+    border-radius: var(--sy-radius) 0 0 var(--sy-radius);
+    background: transparent;
+    color: var(--sy-fg);
+    font-family: var(--sy-font-body);
+    font-size: 16px;
+  }
+
+  .sy-newsletter__field input::placeholder {
+    color: var(--sy-muted);
+    opacity: 1;
+  }
+
+  .sy-newsletter__field .sy-btn {
+    border-radius: 0 var(--sy-radius) var(--sy-radius) 0;
+  }
+
+  .sy-newsletter__field--underline input {
+    border: 0;
+    border-block-end: 1px solid var(--sy-fg);
+    border-radius: 0;
+    padding-inline: 0;
+  }
+
+  .sy-newsletter__field--underline .sy-btn {
+    margin-inline-start: 16px;
+    border-radius: var(--sy-radius);
+  }
+
+  @media screen and (max-width: 480px) {
+    .sy-newsletter__field {
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .sy-newsletter__field input,
+    .sy-newsletter__field .sy-btn {
+      border-radius: var(--sy-radius);
+    }
+
+    .sy-newsletter__field--boxed input {
+      border-inline-end: 1px solid var(--sy-fg);
+    }
+
+    .sy-newsletter__field--underline .sy-btn {
+      margin-inline-start: 0;
+    }
+  }
+
+  .sy-newsletter__message,
+  .sy-newsletter__note {
+    margin: 12px 0 0;
+    font-size: 14px;
+    color: var(--sy-fg);
+  }
+
+  .sy-newsletter__note > * {
+    margin: 0;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "SY Newsletter",
+  "tag": "div",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow label",
+      "default": "Join the hunt"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_rule",
+      "label": "Show gold rule under label",
+      "default": true
+    },
+    {
+      "type": "inline_richtext",
+      "id": "heading",
+      "label": "Heading",
+      "default": "The good ones <em>don't come back.</em>"
+    },
+    {
+      "type": "range",
+      "id": "heading_size",
+      "label": "Heading size (desktop)",
+      "min": 24,
+      "max": 96,
+      "step": 2,
+      "unit": "px",
+      "default": 52
+    },
+    {
+      "type": "range",
+      "id": "heading_size_mobile",
+      "label": "Heading size (mobile)",
+      "min": 20,
+      "max": 64,
+      "step": 2,
+      "unit": "px",
+      "default": 34
+    },
+    {
+      "type": "richtext",
+      "id": "text",
+      "label": "Text",
+      "default": "<p>New finds, first looks and occasional notes from the hunt.</p>"
+    },
+    {
+      "type": "select",
+      "id": "layout",
+      "label": "Layout",
+      "options": [
+        {
+          "value": "center",
+          "label": "Centred"
+        },
+        {
+          "value": "split",
+          "label": "Text left, form right"
+        }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "header",
+      "content": "Form"
+    },
+    {
+      "type": "text",
+      "id": "placeholder",
+      "label": "Email placeholder",
+      "default": "Your email address"
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Button label",
+      "default": "Join"
+    },
+    {
+      "type": "select",
+      "id": "input_style",
+      "label": "Field style",
+      "options": [
+        {
+          "value": "boxed",
+          "label": "Boxed"
+        },
+        {
+          "value": "underline",
+          "label": "Underline"
+        }
+      ],
+      "default": "boxed"
+    },
+    {
+      "type": "range",
+      "id": "form_width",
+      "label": "Form max width",
+      "min": 320,
+      "max": 720,
+      "step": 20,
+      "unit": "px",
+      "default": 520
+    },
+    {
+      "type": "text",
+      "id": "success_message",
+      "label": "Success message",
+      "default": "Thank you — you're on the list for first looks."
+    },
+    {
+      "type": "text",
+      "id": "customer_tags",
+      "label": "Customer tags",
+      "default": "newsletter",
+      "info": "Subscribers appear in Customers with this tag (Shopify Email ready)."
+    },
+    {
+      "type": "richtext",
+      "id": "privacy_note",
+      "label": "Small print (optional)"
+    },
+    {
+      "type": "header",
+      "content": "Colours"
+    },
+    {
+      "type": "select",
+      "id": "color_scheme",
+      "label": "Colour scheme",
+      "options": [
+        {
+          "value": "cream",
+          "label": "Cream"
+        },
+        {
+          "value": "sage",
+          "label": "Light sage"
+        },
+        {
+          "value": "forest",
+          "label": "Forest green (dark)"
+        },
+        {
+          "value": "custom",
+          "label": "Custom"
+        }
+      ],
+      "default": "sage",
+      "info": "Brand colours are set in Theme settings > Subjectively Yours."
+    },
+    {
+      "type": "color",
+      "id": "custom_background",
+      "label": "Background",
+      "default": "#F5EDE1",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "custom_text",
+      "label": "Text",
+      "default": "#41523F",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "custom_muted",
+      "label": "Secondary text",
+      "default": "#5B4632",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "custom_accent",
+      "label": "Accent rules",
+      "default": "#B88D46",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "custom_button_background",
+      "label": "Button background",
+      "default": "#41523F",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "custom_button_text",
+      "label": "Button text",
+      "default": "#F5EDE1",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "custom_card_background",
+      "label": "Image background",
+      "default": "#EFE6D8",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "header",
+      "content": "Section layout"
+    },
+    {
+      "type": "select",
+      "id": "content_width",
+      "label": "Content width",
+      "options": [
+        {
+          "value": "page",
+          "label": "Brand width"
+        },
+        {
+          "value": "narrow",
+          "label": "Narrow"
+        },
+        {
+          "value": "wide",
+          "label": "Wide"
+        },
+        {
+          "value": "full",
+          "label": "Full width"
+        }
+      ],
+      "default": "page"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top padding (desktop)",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "default": 120
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom padding (desktop)",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "default": 120
+    },
+    {
+      "type": "range",
+      "id": "padding_top_mobile",
+      "label": "Top padding (mobile)",
+      "min": 0,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "default": 72
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom_mobile",
+      "label": "Bottom padding (mobile)",
+      "min": 0,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "default": 72
+    },
+    {
+      "type": "checkbox",
+      "id": "reveal",
+      "label": "Reveal on scroll",
+      "default": true,
+      "info": "Also needs Theme settings > Subjectively Yours > Reveal sections on scroll."
+    }
+  ],
+  "presets": [
+    {
+      "name": "SY Newsletter"
+    }
+  ],
+  "disabled_on": {
+    "groups": [
+      "header"
+    ]
+  }
+}
+{% endschema %}

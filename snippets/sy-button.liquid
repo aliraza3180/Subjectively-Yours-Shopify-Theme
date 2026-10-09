@@ -1,0 +1,40 @@
+{%- doc -%}
+  Renders an SY call to action as a filled button, outline button or underlined text link.
+  Outputs nothing when the label is blank.
+
+  @param {string} label - Visible label
+  @param {string} [url] - Destination URL
+  @param {string} [style] - One of: solid, outline, light, dark, outline-light, outline-dark, link
+  @param {boolean} [new_tab] - Open in a new tab
+
+  @example
+  {% render 'sy-button', label: section.settings.button_label, url: section.settings.button_link, style: 'solid' %}
+{%- enddoc -%}
+{%- if label != blank -%}
+  {%- liquid
+    assign style = style | default: 'solid'
+    assign href = url | default: '#'
+    case style
+      when 'link'
+        assign classes = 'sy-link'
+      when 'outline'
+        assign classes = 'sy-btn sy-btn--outline'
+      when 'solid'
+        assign classes = 'sy-btn'
+      else
+        assign classes = 'sy-btn sy-btn--' | append: style
+    endcase
+  -%}
+  <a
+    class="{{ classes }}"
+    href="{{ href }}"
+    {% if new_tab %}
+      target="_blank" rel="noopener"
+    {% endif %}
+  >
+    {{- label | escape -}}
+    {%- if style == 'link' -%}
+      <span class="sy-link__arrow" aria-hidden="true">&rarr;</span>
+    {%- endif -%}
+  </a>
+{%- endif -%}

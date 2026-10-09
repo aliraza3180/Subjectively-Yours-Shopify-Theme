@@ -1,0 +1,186 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "main": {
+      "type": "product-information",
+      "blocks": {
+        "media-gallery": {
+          "type": "_product-media-gallery",
+          "static": true,
+          "settings": {
+            "media_presentation": "grid",
+            "media_columns": "two",
+            "image_gap": 12,
+            "large_first_image": true,
+            "slideshow_mobile_controls_style": "counter",
+            "thumbnail_position": "left",
+            "aspect_ratio": "adapt",
+            "constrain_to_viewport": false,
+            "media_fit": "cover",
+            "media_radius": 0,
+            "extend_media": false,
+            "zoom": true
+          }
+        },
+        "product-details": {
+          "type": "_product-details",
+          "static": true,
+          "settings": {
+            "width": "custom",
+            "custom_width": 100,
+            "gap": 22,
+            "padding-block-start": 8,
+            "padding-block-end": 0,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
+          },
+          "blocks": {
+            "sy_intro": {
+              "type": "sy-product-intro",
+              "settings": {}
+            },
+            "price": {
+              "type": "price",
+              "settings": {
+                "show_tax_info": false,
+                "type_preset": "h4",
+                "alignment": "left"
+              }
+            },
+            "sy_status": {
+              "type": "sy-product-status",
+              "settings": {
+                "archive_link": "/collections/sold-archive"
+              }
+            },
+            "buy_buttons": {
+              "type": "buy-buttons",
+              "settings": {
+                "show_pickup_availability": false,
+                "padding-block-start": 4,
+                "padding-block-end": 0,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {
+                "add-to-cart": {
+                  "type": "add-to-cart",
+                  "static": true,
+                  "settings": {
+                    "style_class": "button"
+                  }
+                },
+                "accelerated-checkout": {
+                  "type": "accelerated-checkout",
+                  "static": true,
+                  "settings": {}
+                }
+              },
+              "block_order": []
+            }
+          },
+          "block_order": [
+            "sy_intro",
+            "price",
+            "sy_status",
+            "buy_buttons"
+          ]
+        }
+      },
+      "settings": {
+        "content_width": "content-center-aligned",
+        "desktop_media_position": "left",
+        "equal_columns": false,
+        "limit_details_width": true,
+        "gap": 48,
+        "enable_sticky_add_to_cart": true,
+        "padding-block-start": 32,
+        "padding-block-end": 64
+      }
+    },
+    "sy_details": {
+      "type": "sy-product-details",
+      "blocks": {
+        "row_1": {
+          "type": "detail",
+          "settings": {
+            "label": "Maker",
+            "metafield": "custom.maker"
+          }
+        },
+        "row_2": {
+          "type": "detail",
+          "settings": {
+            "label": "Era",
+            "metafield": "custom.era"
+          }
+        },
+        "row_3": {
+          "type": "detail",
+          "settings": {
+            "label": "Origin",
+            "metafield": "custom.origin"
+          }
+        },
+        "row_4": {
+          "type": "detail",
+          "settings": {
+            "label": "Material",
+            "metafield": "custom.material"
+          }
+        },
+        "row_5": {
+          "type": "detail",
+          "settings": {
+            "label": "Dimensions",
+            "metafield": "custom.dimensions"
+          }
+        },
+        "row_6": {
+          "type": "detail",
+          "settings": {
+            "label": "Marks / signatures",
+            "metafield": "custom.marks"
+          }
+        },
+        "row_7": {
+          "type": "detail",
+          "settings": {
+            "label": "Product type",
+            "metafield": "product_type"
+          }
+        }
+      },
+      "block_order": [
+        "row_1",
+        "row_2",
+        "row_3",
+        "row_4",
+        "row_5",
+        "row_6",
+        "row_7"
+      ],
+      "settings": {}
+    },
+    "sy_related": {
+      "type": "sy-related-products",
+      "settings": {
+        "link_label": "See new arrivals",
+        "link_url": "/collections/new-arrivals"
+      }
+    }
+  },
+  "order": [
+    "main",
+    "sy_details",
+    "sy_related"
+  ]
+}

@@ -1,0 +1,625 @@
+{%- render 'sy-base' -%}
+<section
+  id="sy-{{ section.id }}"
+  class="sy-section sy-scheme--{{ section.settings.color_scheme }} sy-product-details"
+  style="{% render 'sy-section-style', settings: section.settings %}"
+>
+  <div class="sy-container{% if section.settings.content_width == 'full' %} sy-container--full{% endif %}{% if settings.sy_reveal and section.settings.reveal %} sy-reveal{% endif %}">
+
+    {%- liquid
+      assign s = section.settings
+      assign product = closest.product
+      assign grade = product.metafields.custom.condition_grade.value
+      assign grade_down = grade | downcase | strip
+      assign notes = product.metafields.custom.condition_notes.value
+      assign restored = product.metafields.custom.restored.value
+      assign fulfilment = product.metafields.custom.fulfillment.value | default: product.metafields.custom.shipping_class.value
+      assign fulfilment_down = fulfilment | downcase
+      assign pickup_only = false
+      if fulfilment_down contains 'pickup'
+        assign pickup_only = true
+      endif
+      case grade_down
+        when 'excellent'
+          assign grade_definition = s.def_excellent
+        when 'very good'
+          assign grade_definition = s.def_very_good
+        when 'good'
+          assign grade_definition = s.def_good
+        when 'fair'
+          assign grade_definition = s.def_fair
+        else
+          assign grade_definition = ''
+      endcase
+      capture details_rows
+        for block in section.blocks
+          assign key = block.settings.metafield | strip
+          assign value = ''
+          if key == 'product_type'
+            assign value = product.type
+          elsif key == 'vendor'
+            assign value = product.vendor
+          elsif key contains '.'
+            assign key_parts = key | split: '.'
+            assign value = product.metafields[key_parts[0]][key_parts[1]].value
+          endif
+          if value != blank
+            echo '<div class="sy-pd__row" ' | append: block.shopify_attributes | append: '><dt class="sy-eyebrow">' | append: block.settings.label | append: '</dt><dd>' | append: value | append: '</dd></div>'
+          endif
+        endfor
+      endcapture
+    -%}
+    <div class="sy-pd" style="--sy-h-d: {{ s.heading_size }}px; --sy-h-m: {{ s.heading_size_mobile }}px;">
+      {%- if s.show_find and product.description != blank -%}
+        <div class="sy-pd__find">
+          <div>
+            <p class="sy-eyebrow">{{ s.find_label | escape }}</p>
+            <span class="sy-rule" aria-hidden="true"></span>
+          </div>
+          <div class="sy-text sy-pd__description">{{ product.description }}</div>
+        </div>
+      {%- endif -%}
+      {%- if details_rows != blank -%}
+        <div class="sy-pd__details">
+          <div>
+            <p class="sy-eyebrow">{{ s.details_label | escape }}</p>
+            <span class="sy-rule" aria-hidden="true"></span>
+          </div>
+          <dl class="sy-pd__table">{{ details_rows }}</dl>
+        </div>
+      {%- endif -%}
+    </div>
+
+    <div class="sy-pd__panels">
+      {%- if s.show_condition -%}
+        <div class="sy-pd__panel" id="sy-condition">
+          <p class="sy-eyebrow">{{ s.condition_label | escape }}</p>
+          <span class="sy-rule" aria-hidden="true"></span>
+          {%- if grade != blank -%}
+            <h2 class="sy-heading sy-pd__grade">{{ grade | escape }}</h2>
+            {%- if grade_definition != blank -%}
+              <p class="sy-muted sy-pd__def">{{ grade_definition | escape }}</p>
+            {%- endif -%}
+          {%- endif -%}
+          {%- if notes != blank -%}
+            <div class="sy-text sy-pd__notes">{{ notes | newline_to_br }}</div>
+          {%- endif -%}
+          {%- if restored != blank -%}
+            <p class="sy-pd__restored"><span class="sy-eyebrow">{{ s.restored_label | escape }}</span> {{ restored | escape }}</p>
+          {%- endif -%}
+          {%- if grade == blank and notes == blank -%}
+            <p class="sy-text sy-muted">{{ s.condition_fallback | escape }}</p>
+          {%- endif -%}
+          {%- if s.guide_label != blank and s.guide_link != blank -%}
+            {%- render 'sy-button', label: s.guide_label, url: s.guide_link, style: 'link' -%}
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+      {%- if s.show_shipping -%}
+        <div class="sy-pd__panel">
+          <p class="sy-eyebrow">{{ s.shipping_label | escape }}</p>
+          <span class="sy-rule" aria-hidden="true"></span>
+          {%- if pickup_only -%}
+            <h2 class="sy-heading sy-pd__grade">{{ s.pickup_title | escape }}</h2>
+            <div class="sy-text">{{ s.pickup_text }}</div>
+          {%- else -%}
+            <h2 class="sy-heading sy-pd__grade">{{ s.shipping_title | escape }}</h2>
+            <div class="sy-text">{{ s.shipping_text }}</div>
+          {%- endif -%}
+          {%- if s.policy_text != blank -%}
+            <div class="sy-text sy-muted sy-pd__policy">{{ s.policy_text }}</div>
+          {%- endif -%}
+          <div class="sy-actions">
+            {%- if shop.shipping_policy != blank -%}
+              {%- render 'sy-button', label: shop.shipping_policy.title, url: shop.shipping_policy.url, style: 'link' -%}
+            {%- endif -%}
+            {%- if shop.refund_policy != blank -%}
+              {%- render 'sy-button', label: shop.refund_policy.title, url: shop.refund_policy.url, style: 'link' -%}
+            {%- endif -%}
+          </div>
+        </div>
+      {%- endif -%}
+    </div>
+
+  </div>
+</section>
+
+{% stylesheet %}
+  .sy-pd {
+    display: grid;
+    gap: 48px;
+  }
+
+  @media screen and (min-width: 990px) {
+    .sy-pd {
+      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+      gap: clamp(48px, 7vw, 120px);
+    }
+  }
+
+  .sy-pd__find,
+  .sy-pd__details {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    min-width: 0;
+  }
+
+  .sy-pd__description {
+    font-size: calc(var(--sy-body-size) + 1px);
+    max-width: 40rem;
+  }
+
+  .sy-pd__table {
+    margin: 0;
+    border-block-start: 1px solid var(--sy-line);
+  }
+
+  .sy-pd__row {
+    display: grid;
+    grid-template-columns: minmax(110px, 38%) minmax(0, 1fr);
+    gap: 16px;
+    padding-block: 14px;
+    border-block-end: 1px solid var(--sy-line);
+  }
+
+  .sy-pd__row dt {
+    color: var(--sy-muted);
+  }
+
+  .sy-pd__row dd {
+    margin: 0;
+    font-family: var(--sy-font-body);
+    font-size: 16px;
+    line-height: 1.5;
+  }
+
+  .sy-pd__panels {
+    display: grid;
+    gap: 24px;
+    margin-block-start: 64px;
+  }
+
+  @media screen and (min-width: 750px) {
+    .sy-pd__panels {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  .sy-pd__panel {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+    padding: clamp(24px, 4vw, 44px);
+    border-radius: var(--sy-radius);
+    background: color-mix(in srgb, var(--sy-fg) 5%, var(--sy-bg));
+    scroll-margin-block-start: 120px;
+  }
+
+  .sy-pd__panel .sy-rule {
+    margin-block-start: -4px;
+  }
+
+  .sy-pd__grade {
+    --sy-h-d: 34px;
+    --sy-h-m: 28px;
+  }
+
+  .sy-pd__def {
+    margin: 0;
+    font-size: 15px;
+    font-style: italic;
+  }
+
+  .sy-pd__restored {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+  }
+
+  .sy-pd__policy {
+    font-size: 14px;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "SY Product details",
+  "tag": "div",
+  "enabled_on": {
+    "templates": [
+      "product"
+    ]
+  },
+  "settings": [
+    {
+      "type": "header",
+      "content": "The Find"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_find",
+      "label": "Show The Find (product description)",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "find_label",
+      "label": "Label",
+      "default": "The find"
+    },
+    {
+      "type": "range",
+      "id": "heading_size",
+      "label": "Heading size (desktop)",
+      "min": 24,
+      "max": 64,
+      "step": 2,
+      "unit": "px",
+      "default": 34
+    },
+    {
+      "type": "range",
+      "id": "heading_size_mobile",
+      "label": "Heading size (mobile)",
+      "min": 20,
+      "max": 48,
+      "step": 2,
+      "unit": "px",
+      "default": 28
+    },
+    {
+      "type": "text",
+      "id": "details_label",
+      "label": "Details label",
+      "default": "Details"
+    },
+    {
+      "type": "paragraph",
+      "content": "Add a block per detail row. Rows with no value are hidden automatically — nothing is ever invented."
+    },
+    {
+      "type": "header",
+      "content": "Condition"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_condition",
+      "label": "Show condition panel",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "condition_label",
+      "label": "Label",
+      "default": "Condition"
+    },
+    {
+      "type": "text",
+      "id": "def_excellent",
+      "label": "Excellent definition",
+      "default": "Near-original condition with minimal signs of age or use."
+    },
+    {
+      "type": "text",
+      "id": "def_very_good",
+      "label": "Very Good definition",
+      "default": "Light wear consistent with age; no significant flaws affecting appearance or function."
+    },
+    {
+      "type": "text",
+      "id": "def_good",
+      "label": "Good definition",
+      "default": "Visible age-related wear such as crazing, rubbing, surface marks or minor imperfections; structurally sound and usable. Any chips, cracks or losses specifically disclosed."
+    },
+    {
+      "type": "text",
+      "id": "def_fair",
+      "label": "Fair definition",
+      "default": "Noticeable wear, damage and/or old repairs; all issues clearly photographed and disclosed."
+    },
+    {
+      "type": "text",
+      "id": "restored_label",
+      "label": "Restored label",
+      "default": "Restored / altered"
+    },
+    {
+      "type": "text",
+      "id": "condition_fallback",
+      "label": "Text when no condition is set",
+      "default": "Please see the photographs for condition, or ask us about this piece."
+    },
+    {
+      "type": "text",
+      "id": "guide_label",
+      "label": "Condition guide link label",
+      "default": "How we grade condition"
+    },
+    {
+      "type": "url",
+      "id": "guide_link",
+      "label": "Condition guide link"
+    },
+    {
+      "type": "header",
+      "content": "Shipping & pickup"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_shipping",
+      "label": "Show shipping panel",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "shipping_label",
+      "label": "Label",
+      "default": "Shipping & pickup"
+    },
+    {
+      "type": "text",
+      "id": "shipping_title",
+      "label": "Shippable title",
+      "default": "Ships within the contiguous US"
+    },
+    {
+      "type": "richtext",
+      "id": "shipping_text",
+      "label": "Shippable text",
+      "default": "<p>Packed with care and sent with tracking, insured for its full purchase value. Shipping is calculated at checkout. Free local pickup in Sebastian, Florida is also available.</p>"
+    },
+    {
+      "type": "text",
+      "id": "pickup_title",
+      "label": "Local pickup only title",
+      "default": "Local pickup only — Sebastian, Florida"
+    },
+    {
+      "type": "richtext",
+      "id": "pickup_text",
+      "label": "Local pickup only text",
+      "default": "<p>This piece can't be shipped. Pickup is free and by appointment; exact details are sent privately after your order is confirmed. You're welcome to inspect it at pickup.</p>"
+    },
+    {
+      "type": "richtext",
+      "id": "policy_text",
+      "label": "Policy note",
+      "default": "<p>All sales are final. If an item arrives damaged in transit or materially different from its listing, contact us within 48 hours of delivery.</p>"
+    },
+    {
+      "type": "header",
+      "content": "Colours"
+    },
+    {
+      "type": "select",
+      "id": "color_scheme",
+      "label": "Colour scheme",
+      "options": [
+        {
+          "value": "cream",
+          "label": "Cream"
+        },
+        {
+          "value": "sage",
+          "label": "Light sage"
+        },
+        {
+          "value": "forest",
+          "label": "Forest green (dark)"
+        },
+        {
+          "value": "custom",
+          "label": "Custom"
+        }
+      ],
+      "default": "cream",
+      "info": "Brand colours are set in Theme settings > Subjectively Yours."
+    },
+    {
+      "type": "color",
+      "id": "custom_background",
+      "label": "Background",
+      "default": "#F5EDE1",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "custom_text",
+      "label": "Text",
+      "default": "#41523F",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "custom_muted",
+      "label": "Secondary text",
+      "default": "#5B4632",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "custom_accent",
+      "label": "Accent rules",
+      "default": "#B88D46",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "custom_button_background",
+      "label": "Button background",
+      "default": "#41523F",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "custom_button_text",
+      "label": "Button text",
+      "default": "#F5EDE1",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "custom_card_background",
+      "label": "Image background",
+      "default": "#EFE6D8",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "header",
+      "content": "Section layout"
+    },
+    {
+      "type": "select",
+      "id": "content_width",
+      "label": "Content width",
+      "options": [
+        {
+          "value": "page",
+          "label": "Brand width"
+        },
+        {
+          "value": "narrow",
+          "label": "Narrow"
+        },
+        {
+          "value": "wide",
+          "label": "Wide"
+        },
+        {
+          "value": "full",
+          "label": "Full width"
+        }
+      ],
+      "default": "page"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top padding (desktop)",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "default": 96
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom padding (desktop)",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "default": 96
+    },
+    {
+      "type": "range",
+      "id": "padding_top_mobile",
+      "label": "Top padding (mobile)",
+      "min": 0,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "default": 64
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom_mobile",
+      "label": "Bottom padding (mobile)",
+      "min": 0,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "default": 64
+    },
+    {
+      "type": "checkbox",
+      "id": "reveal",
+      "label": "Reveal on scroll",
+      "default": true,
+      "info": "Also needs Theme settings > Subjectively Yours > Reveal sections on scroll."
+    }
+  ],
+  "blocks": [
+    {
+      "type": "detail",
+      "name": "Detail row",
+      "settings": [
+        {
+          "type": "text",
+          "id": "label",
+          "label": "Label",
+          "default": "Maker"
+        },
+        {
+          "type": "text",
+          "id": "metafield",
+          "label": "Metafield (namespace.key)",
+          "default": "custom.maker",
+          "info": "e.g. custom.era. Use product_type or vendor for those built-in fields."
+        }
+      ]
+    }
+  ],
+  "max_blocks": 16,
+  "presets": [
+    {
+      "name": "SY Product details",
+      "blocks": [
+        {
+          "type": "detail",
+          "settings": {
+            "label": "Maker",
+            "metafield": "custom.maker"
+          }
+        },
+        {
+          "type": "detail",
+          "settings": {
+            "label": "Era",
+            "metafield": "custom.era"
+          }
+        },
+        {
+          "type": "detail",
+          "settings": {
+            "label": "Origin",
+            "metafield": "custom.origin"
+          }
+        },
+        {
+          "type": "detail",
+          "settings": {
+            "label": "Material",
+            "metafield": "custom.material"
+          }
+        },
+        {
+          "type": "detail",
+          "settings": {
+            "label": "Dimensions",
+            "metafield": "custom.dimensions"
+          }
+        },
+        {
+          "type": "detail",
+          "settings": {
+            "label": "Marks / signatures",
+            "metafield": "custom.marks"
+          }
+        },
+        {
+          "type": "detail",
+          "settings": {
+            "label": "Product type",
+            "metafield": "product_type"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

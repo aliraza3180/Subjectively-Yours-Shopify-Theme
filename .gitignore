@@ -1,0 +1,11 @@
+# Not theme files
+AGENTS.md
+.shopify/
+
+# OS / editor junk
+.DS_Store
+Thumbs.db
+*.log
+.vscode/
+.idea/
+node_modules/

@@ -1,0 +1,621 @@
+{%- render 'sy-base' -%}
+<section
+  id="sy-{{ section.id }}"
+  class="sy-section sy-scheme--{{ section.settings.color_scheme }} sy-feature"
+  style="{% render 'sy-section-style', settings: section.settings %}"
+>
+  <div class="sy-container{% if section.settings.content_width == 'full' %} sy-container--full{% endif %}{% if settings.sy_reveal and section.settings.reveal %} sy-reveal{% endif %}">
+
+    {%- liquid
+      assign s = section.settings
+      assign c = s.collection | default: collections.all
+      assign show_video = false
+      if s.media_type == 'video' and s.video != blank
+        assign show_video = true
+      endif
+      assign button_url = s.button_link | default: c.url
+      assign feature_img_class = ''
+      if show_video
+        assign feature_img_class = 'sy-mobile-only'
+      endif
+      assign feature_img_style = 'object-position: ' | append: s.image.presentation.focal_point
+    -%}
+    <div
+      class="sy-feature sy-feature--media-{{ s.media_position }} sy-feature--align-{{ s.vertical_alignment }}"
+      style="--sy-feature-media: {{ s.media_width }}%; --sy-media-ratio: {{ s.media_ratio }}; --sy-h-d: {{ s.heading_size }}px; --sy-h-m: {{ s.heading_size_mobile }}px; --sy-thumb-cols: {{ s.thumbnail_columns }};"
+    >
+      <div class="sy-feature__media sy-media sy-media--ratio">
+        {%- if show_video -%}
+          <div class="sy-feature__video{% if s.image != blank %} sy-desktop-only{% endif %}">
+            {{ s.video | video_tag: autoplay: true, loop: true, muted: true, playsinline: true, controls: false, preload: 'metadata', image_size: '1400x' }}
+          </div>
+        {%- endif -%}
+        {%- if s.image != blank -%}
+          {{
+            s.image
+            | image_url: width: 1600
+            | image_tag:
+              widths: '500, 750, 1000, 1300, 1600',
+              sizes: '(min-width: 750px) 55vw, 100vw',
+              loading: 'lazy',
+              class: feature_img_class,
+              style: feature_img_style
+          }}
+        {%- elsif show_video == false -%}
+          <img src="{{ 'sy-demo-enamel-feature.jpg' | asset_url }}" alt="" loading="lazy" width="1600" height="2000">
+        {%- endif -%}
+      </div>
+
+      <div class="sy-feature__content">
+        {%- if s.eyebrow != blank -%}
+          <div>
+            <p class="sy-eyebrow">{{ s.eyebrow | escape }}</p>
+            {%- if s.show_rule -%}
+              <span class="sy-rule" aria-hidden="true"></span>
+            {%- endif -%}
+          </div>
+        {%- endif -%}
+        {%- if s.heading != blank -%}
+          <h2 class="sy-heading">{{ s.heading }}</h2>
+        {%- endif -%}
+        {%- if s.tagline != blank -%}
+          <p class="sy-feature__tagline">{{ s.tagline }}</p>
+        {%- endif -%}
+        {%- if s.text != blank -%}
+          <div class="sy-text">{{ s.text }}</div>
+        {%- endif -%}
+
+        {%- if s.thumbnail_count > 0 -%}
+          <div class="sy-feature__thumbs">
+            {%- if c.products_count > 0 or collections.all.products_count > 0 -%}
+              {%- for product in c.products limit: s.thumbnail_count -%}
+                <a class="sy-feature__thumb" href="{{ product.url }}">
+                  <span class="sy-media sy-media--ratio" style="--sy-media-ratio: 1 / 1;">
+                    {%- if product.featured_media -%}
+                      {{ product.featured_media.preview_image | image_url: width: 400 | image_tag: widths: '200, 300, 400', sizes: '160px', loading: 'lazy', alt: product.title }}
+                    {%- else -%}
+                      {{ 'product-1' | placeholder_svg_tag }}
+                    {%- endif -%}
+                  </span>
+                  {%- if s.show_thumbnail_titles -%}
+                    <span class="sy-feature__thumb-title">{{ product.title | escape }}</span>
+                  {%- endif -%}
+                </a>
+              {%- endfor -%}
+            {%- else -%}
+              {%- for i in (1..6) limit: s.thumbnail_count -%}
+                <span class="sy-feature__thumb">
+                  <span class="sy-media sy-media--ratio" style="--sy-media-ratio: 1 / 1;">
+                    <img src="{{ 'sy-demo-enamel-0' | append: i | append: '.jpg' | asset_url }}" alt="" loading="lazy" width="600" height="600">
+                  </span>
+                </span>
+              {%- endfor -%}
+            {%- endif -%}
+          </div>
+        {%- endif -%}
+
+        {%- if s.button_label != blank -%}
+          <div class="sy-actions">
+            {%- render 'sy-button', label: s.button_label, url: button_url, style: s.button_style -%}
+          </div>
+        {%- endif -%}
+      </div>
+    </div>
+
+  </div>
+</section>
+
+{% stylesheet %}
+  .sy-feature {
+    display: grid;
+    gap: 40px;
+  }
+
+  @media screen and (min-width: 990px) {
+    .sy-feature {
+      grid-template-columns: var(--sy-feature-media) minmax(0, 1fr);
+      gap: clamp(48px, 6vw, 96px);
+    }
+
+    .sy-feature--media-right .sy-feature__media {
+      order: 2;
+    }
+
+    .sy-feature--align-top { align-items: start; }
+    .sy-feature--align-center { align-items: center; }
+    .sy-feature--align-bottom { align-items: end; }
+  }
+
+  .sy-feature__media video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .sy-feature__video {
+    position: absolute;
+    inset: 0;
+  }
+
+  .sy-feature__content {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 22px;
+    min-width: 0;
+  }
+
+  .sy-feature__tagline {
+    margin: 0;
+    font-family: var(--sy-font-heading);
+    font-size: clamp(20px, 2vw, 26px);
+    font-style: italic;
+    line-height: 1.3;
+  }
+
+  .sy-feature__thumbs {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    width: 100%;
+    max-width: 560px;
+  }
+
+  @media screen and (min-width: 750px) {
+    .sy-feature__thumbs {
+      grid-template-columns: repeat(var(--sy-thumb-cols), minmax(0, 1fr));
+      gap: 16px;
+    }
+  }
+
+  .sy-feature__thumb {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .sy-feature__thumb .sy-media {
+    display: block;
+    background: var(--sy-card-bg);
+  }
+
+  .sy-feature__thumb img {
+    transition: transform 0.6s ease;
+  }
+
+  a.sy-feature__thumb:hover img {
+    transform: scale(1.05);
+  }
+
+  .sy-feature__thumb-title {
+    font-size: 13px;
+    line-height: 1.3;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "SY Featured collection",
+  "tag": "div",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Collection"
+    },
+    {
+      "type": "collection",
+      "id": "collection",
+      "label": "Collection",
+      "info": "Used for the thumbnails and the default button link. Switch it to feature a different editorial collection (e.g. High Tea)."
+    },
+    {
+      "type": "header",
+      "content": "Media"
+    },
+    {
+      "type": "select",
+      "id": "media_type",
+      "label": "Media type",
+      "options": [
+        {
+          "value": "image",
+          "label": "Image"
+        },
+        {
+          "value": "video",
+          "label": "Video"
+        }
+      ],
+      "default": "image"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Image",
+      "info": "Group photograph works best. Also used on mobile when a video is set."
+    },
+    {
+      "type": "video",
+      "id": "video",
+      "label": "Video",
+      "visible_if": "{{ section.settings.media_type == 'video' }}"
+    },
+    {
+      "type": "select",
+      "id": "media_position",
+      "label": "Media position (desktop)",
+      "options": [
+        {
+          "value": "left",
+          "label": "Left"
+        },
+        {
+          "value": "right",
+          "label": "Right"
+        }
+      ],
+      "default": "left"
+    },
+    {
+      "type": "select",
+      "id": "media_width",
+      "label": "Media width (desktop)",
+      "options": [
+        {
+          "value": "40",
+          "label": "40%"
+        },
+        {
+          "value": "45",
+          "label": "45%"
+        },
+        {
+          "value": "50",
+          "label": "50%"
+        },
+        {
+          "value": "55",
+          "label": "55%"
+        },
+        {
+          "value": "60",
+          "label": "60%"
+        }
+      ],
+      "default": "50"
+    },
+    {
+      "type": "select",
+      "id": "media_ratio",
+      "label": "Media shape",
+      "options": [
+        {
+          "value": "4 / 5",
+          "label": "Portrait (4:5)"
+        },
+        {
+          "value": "1 / 1",
+          "label": "Square"
+        },
+        {
+          "value": "3 / 4",
+          "label": "Tall (3:4)"
+        },
+        {
+          "value": "4 / 3",
+          "label": "Landscape (4:3)"
+        },
+        {
+          "value": "3 / 2",
+          "label": "Landscape (3:2)"
+        }
+      ],
+      "default": "4 / 5"
+    },
+    {
+      "type": "select",
+      "id": "vertical_alignment",
+      "label": "Content vertical alignment",
+      "options": [
+        {
+          "value": "top",
+          "label": "Top"
+        },
+        {
+          "value": "center",
+          "label": "Centre"
+        },
+        {
+          "value": "bottom",
+          "label": "Bottom"
+        }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow label",
+      "default": "Featured collection"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_rule",
+      "label": "Show gold rule under label",
+      "default": true
+    },
+    {
+      "type": "inline_richtext",
+      "id": "heading",
+      "label": "Heading",
+      "default": "The <em>Enamel</em> Collection"
+    },
+    {
+      "type": "range",
+      "id": "heading_size",
+      "label": "Heading size (desktop)",
+      "min": 24,
+      "max": 96,
+      "step": 2,
+      "unit": "px",
+      "default": 56
+    },
+    {
+      "type": "range",
+      "id": "heading_size_mobile",
+      "label": "Heading size (mobile)",
+      "min": 20,
+      "max": 64,
+      "step": 2,
+      "unit": "px",
+      "default": 38
+    },
+    {
+      "type": "inline_richtext",
+      "id": "tagline",
+      "label": "Tagline (italic)",
+      "default": "Tiny works of art, made to be collected."
+    },
+    {
+      "type": "richtext",
+      "id": "text",
+      "label": "Text",
+      "default": "<p>Around one hundred hand-painted enamel boxes — florals, birds, animals, places and sentimental keepsakes — each one small enough to hold and lovely enough to keep.</p>"
+    },
+    {
+      "type": "header",
+      "content": "Thumbnails"
+    },
+    {
+      "type": "range",
+      "id": "thumbnail_count",
+      "label": "Number of thumbnails",
+      "min": 0,
+      "max": 9,
+      "step": 1,
+      "default": 6,
+      "info": "Pulled from the collection. Set to 0 to hide."
+    },
+    {
+      "type": "range",
+      "id": "thumbnail_columns",
+      "label": "Thumbnail columns (desktop)",
+      "min": 2,
+      "max": 5,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "type": "checkbox",
+      "id": "show_thumbnail_titles",
+      "label": "Show product titles under thumbnails",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Button"
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Button label",
+      "default": "Explore the collection"
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "Button link",
+      "info": "Defaults to the selected collection."
+    },
+    {
+      "type": "select",
+      "id": "button_style",
+      "label": "Button style",
+      "options": [
+        {
+          "value": "outline",
+          "label": "Outline"
+        },
+        {
+          "value": "solid",
+          "label": "Solid"
+        },
+        {
+          "value": "link",
+          "label": "Text link"
+        }
+      ],
+      "default": "outline"
+    },
+    {
+      "type": "header",
+      "content": "Colours"
+    },
+    {
+      "type": "select",
+      "id": "color_scheme",
+      "label": "Colour scheme",
+      "options": [
+        {
+          "value": "cream",
+          "label": "Cream"
+        },
+        {
+          "value": "sage",
+          "label": "Light sage"
+        },
+        {
+          "value": "forest",
+          "label": "Forest green (dark)"
+        },
+        {
+          "value": "custom",
+          "label": "Custom"
+        }
+      ],
+      "default": "forest",
+      "info": "Brand colours are set in Theme settings > Subjectively Yours."
+    },
+    {
+      "type": "color",
+      "id": "custom_background",
+      "label": "Background",
+      "default": "#F5EDE1",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "custom_text",
+      "label": "Text",
+      "default": "#41523F",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "custom_muted",
+      "label": "Secondary text",
+      "default": "#5B4632",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "custom_accent",
+      "label": "Accent rules",
+      "default": "#B88D46",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "custom_button_background",
+      "label": "Button background",
+      "default": "#41523F",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "custom_button_text",
+      "label": "Button text",
+      "default": "#F5EDE1",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "custom_card_background",
+      "label": "Image background",
+      "default": "#EFE6D8",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "header",
+      "content": "Section layout"
+    },
+    {
+      "type": "select",
+      "id": "content_width",
+      "label": "Content width",
+      "options": [
+        {
+          "value": "page",
+          "label": "Brand width"
+        },
+        {
+          "value": "narrow",
+          "label": "Narrow"
+        },
+        {
+          "value": "wide",
+          "label": "Wide"
+        },
+        {
+          "value": "full",
+          "label": "Full width"
+        }
+      ],
+      "default": "page"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top padding (desktop)",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "default": 120
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom padding (desktop)",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "default": 120
+    },
+    {
+      "type": "range",
+      "id": "padding_top_mobile",
+      "label": "Top padding (mobile)",
+      "min": 0,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "default": 72
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom_mobile",
+      "label": "Bottom padding (mobile)",
+      "min": 0,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "default": 72
+    },
+    {
+      "type": "checkbox",
+      "id": "reveal",
+      "label": "Reveal on scroll",
+      "default": true,
+      "info": "Also needs Theme settings > Subjectively Yours > Reveal sections on scroll."
+    }
+  ],
+  "presets": [
+    {
+      "name": "SY Featured collection"
+    }
+  ],
+  "disabled_on": {
+    "groups": [
+      "header"
+    ]
+  }
+}
+{% endschema %}

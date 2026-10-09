@@ -1,0 +1,35 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "sy_hero": {
+      "type": "sy-collection-hero",
+      "settings": {
+        "eyebrow": "Shop",
+        "show_breadcrumb": true
+      }
+    },
+    "sy_grid": {
+      "type": "sy-main-collection",
+      "settings": {
+        "empty_button_link": "/collections/new-arrivals"
+      }
+    },
+    "sy_video": {
+      "type": "sy-collection-video",
+      "settings": {}
+    }
+  },
+  "order": [
+    "sy_hero",
+    "sy_grid",
+    "sy_video"
+  ]
+}

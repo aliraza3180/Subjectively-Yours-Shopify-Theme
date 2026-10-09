@@ -1,0 +1,154 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "sy_hero": {
+      "type": "sy-page-hero",
+      "settings": {
+        "layout": "split",
+        "alignment": "left",
+        "image_ratio": "4 / 5",
+        "demo_image": "sy-demo-about-hero.jpg",
+        "eyebrow": "About",
+        "title": "A Collector's <em>Note</em>",
+        "heading_size": 96,
+        "heading_size_mobile": 50,
+        "subtitle": "Why this object? Because someone saw it, loved it and decided it was worth keeping.",
+        "note": "Subjectively Yours · Sebastian, Florida",
+        "padding_top": 72,
+        "padding_bottom": 40,
+        "padding_top_mobile": 40,
+        "padding_bottom_mobile": 24
+      }
+    },
+    "ch_1": {
+      "type": "sy-chapter",
+      "settings": {
+        "number": "I",
+        "label": "The chair",
+        "lead": false,
+        "heading": "Subjectively Yours started, unintentionally, <em>with a chair.</em>",
+        "text": "<p>My husband and I had begun taking little trips in search of things for our home — things we couldn't find at Target or another big-box store. We wanted objects that felt like us. Things with character, history and a point of view; things that hadn't been manufactured by the thousands to fill a space.</p><p>We found an incredible old chair. Then a pair of strange industrial vents — from a tunnel, an airplane, honestly, I'm still not entirely sure — that now hang on our wall as art. Original paintings followed. Objects from antique shops and galleries in little towns across the country.</p><p>And somewhere along the way, I got hooked.</p>",
+        "media_layout": "beside",
+        "media_side": "right",
+        "image_ratio": "4 / 5",
+        "demo_image_1": "sy-demo-about-chair.jpg",
+        "padding_top": 96,
+        "padding_bottom": 72
+      }
+    },
+    "ch_2": {
+      "type": "sy-chapter",
+      "settings": {
+        "number": "II",
+        "label": "The reaction",
+        "lead": true,
+        "text": "<p>I began to realize that what interested me wasn't necessarily a particular period, maker or category. It was the feeling of finding something amongst hundreds of other things that made me stop.</p><p>That's still how I source today.</p><p>An object has to provoke some kind of reaction. I have to find it beautiful, unusual, curious or simply impossible to leave behind. But I also tend to see things in context: not just <em>what is this?</em>, but <em>where could this live? What could someone do with it?</em></p>",
+        "media_layout": "beside",
+        "media_side": "left",
+        "image_ratio": "3 / 4",
+        "demo_image_1": "sy-demo-about-vase.jpg",
+        "padding_top": 72,
+        "padding_bottom": 112
+      }
+    },
+    "quote": {
+      "type": "sy-quote",
+      "settings": {
+        "quote": "An old object doesn't need to become precious simply because it's old. I believe these things should be <em>lived with.</em>",
+        "quote_size": 52,
+        "color_scheme": "sage"
+      }
+    },
+    "ch_3": {
+      "type": "sy-chapter",
+      "settings": {
+        "number": "III",
+        "label": "Lived with",
+        "lead": false,
+        "text": "<p>A tiny vintage corner table can turn out to be exactly what an awkward modern nook needed. An unidentified piece of industrial metal can become wall art. Old china can come out for Tuesday dinner. Beautiful glassware should hold a drink. Clothes made decades ago can still be worn tomorrow.</p><p>There is another part to this for me, too.</p><p>The more I collected, the less interested I became in disposable things — whether for the home or for my wardrobe. I'd rather give another life to something that already exists, was made well and has some history than automatically buy another newly manufactured object simply because it's convenient.</p>",
+        "media_layout": "beside",
+        "media_side": "right",
+        "image_ratio": "3 / 4",
+        "demo_image_1": "sy-demo-about-table.jpg",
+        "padding_top": 112,
+        "padding_bottom": 112
+      }
+    },
+    "band": {
+      "type": "sy-image-band",
+      "settings": {
+        "demo_image": "sy-demo-about-band.jpg",
+        "height": 80,
+        "height_mobile": 55,
+        "caption": "Old china can come out for <em>Tuesday dinner.</em>"
+      }
+    },
+    "ch_4": {
+      "type": "sy-chapter",
+      "settings": {
+        "number": "IV",
+        "label": "Honestly described",
+        "lead": true,
+        "media_layout": "none",
+        "text": "<p>Not everything here is perfect. Nor should it be.</p><p>Some pieces have pedigrees and recognizable makers. Others are unsigned mysteries. Some are remarkably preserved; others show every bit of the life they've already lived. I describe condition honestly, but I don't believe age itself is a flaw.</p>",
+        "padding_top": 120,
+        "padding_bottom": 56
+      }
+    },
+    "ch_5": {
+      "type": "sy-chapter",
+      "settings": {
+        "number": "V",
+        "label": "Why it exists",
+        "lead": true,
+        "media_layout": "none",
+        "text": "<p>Eventually I faced a practical problem: I couldn't possibly keep everything I wanted to bring home.</p><p>And that became Subjectively Yours.</p><p>I visit antique shops, estate sales, flea markets and unexpected places, and sift through all of it. What ends up here has passed through a very subjective filter — my eye, my experiences, the places I've lived and travelled, the things I've read, the homes I've made, and all the other influences that somehow become taste.</p><p>You don't have to spend your weekends digging through a hundred things to find the one.</p><p>That's my part.</p>",
+        "padding_top": 56,
+        "padding_bottom": 120
+      }
+    },
+    "closing": {
+      "type": "sy-statement",
+      "settings": {
+        "color_scheme": "sage",
+        "heading": "If your taste happens to meet mine, <em>the rest is yours.</em>",
+        "heading_size": 52,
+        "heading_size_mobile": 32,
+        "text": "",
+        "show_rule": true,
+        "signoff": "Collected, Not Manufactured.",
+        "button_label": "See what's newly collected",
+        "button_link": "/collections/new-arrivals",
+        "button_style": "solid",
+        "button_label_2": "Browse the Sold Archive",
+        "button_link_2": "/collections/sold-archive"
+      }
+    },
+    "hunt": {
+      "type": "sy-newsletter",
+      "settings": {
+        "color_scheme": "cream"
+      }
+    }
+  },
+  "order": [
+    "sy_hero",
+    "ch_1",
+    "ch_2",
+    "quote",
+    "ch_3",
+    "band",
+    "ch_4",
+    "ch_5",
+    "closing",
+    "hunt"
+  ]
+}

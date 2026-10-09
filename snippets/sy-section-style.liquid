@@ -1,0 +1,35 @@
+{%- doc -%}
+  Outputs the inline CSS custom properties shared by every SY section: spacing,
+  content width and (when the colour scheme is "custom") the custom colours.
+  Use inside a style attribute.
+
+  @param {object} settings - The section settings object
+
+  @example
+  <section class="sy-section" style="{% render 'sy-section-style', settings: section.settings %}">
+{%- enddoc -%}
+{%- liquid
+  echo '--sy-pt: ' | append: settings.padding_top | append: 'px;'
+  echo '--sy-pb: ' | append: settings.padding_bottom | append: 'px;'
+  echo '--sy-pt-m: ' | append: settings.padding_top_mobile | append: 'px;'
+  echo '--sy-pb-m: ' | append: settings.padding_bottom_mobile | append: 'px;'
+
+  case settings.content_width
+    when 'narrow'
+      echo '--sy-max: 960px;'
+    when 'wide'
+      echo '--sy-max: 1440px;'
+  endcase
+
+  if settings.color_scheme == 'custom'
+    echo '--sy-bg: ' | append: settings.custom_background | append: ';'
+    echo '--sy-fg: ' | append: settings.custom_text | append: ';'
+    echo '--sy-muted: ' | append: settings.custom_muted | append: ';'
+    echo '--sy-accent: ' | append: settings.custom_accent | append: ';'
+    echo '--sy-btn-bg: ' | append: settings.custom_button_background | append: ';'
+    echo '--sy-btn-fg: ' | append: settings.custom_button_text | append: ';'
+    echo '--sy-card-bg: ' | append: settings.custom_card_background | append: ';'
+    echo '--sy-line: ' | append: settings.custom_muted | append: ';'
+    echo '--sy-sold-fg: ' | append: settings.custom_muted | append: ';'
+  endif
+-%}

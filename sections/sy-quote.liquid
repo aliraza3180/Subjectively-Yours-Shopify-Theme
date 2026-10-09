@@ -1,0 +1,310 @@
+{%- render 'sy-base' -%}
+<section
+  id="sy-{{ section.id }}"
+  class="sy-section sy-scheme--{{ section.settings.color_scheme }} sy-quote-section"
+  style="{% render 'sy-section-style', settings: section.settings %}"
+>
+  <div class="sy-container{% if section.settings.content_width == 'full' %} sy-container--full{% endif %}{% if settings.sy_reveal and section.settings.reveal %} sy-reveal{% endif %}">
+
+    {%- assign s = section.settings -%}
+    <figure class="sy-quote sy-quote--{{ s.alignment }}" style="--sy-quote-size: {{ s.quote_size }}px; --sy-quote-size-m: {{ s.quote_size_mobile }}px; --sy-quote-w: {{ s.max_width }}px;">
+      {%- if s.show_mark -%}<span class="sy-quote__mark" aria-hidden="true">&ldquo;</span>{%- endif -%}
+      <blockquote class="sy-quote__text"><p>{{ s.quote }}</p></blockquote>
+      {%- if s.attribution != blank -%}
+        <figcaption class="sy-quote__by">
+          <span class="sy-rule" aria-hidden="true"></span>
+          <span class="sy-eyebrow">{{ s.attribution | escape }}</span>
+        </figcaption>
+      {%- endif -%}
+    </figure>
+
+  </div>
+</section>
+
+{% stylesheet %}
+  .sy-quote {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    max-width: var(--sy-quote-w);
+    margin: 0;
+  }
+
+  .sy-quote--center {
+    align-items: center;
+    margin-inline: auto;
+    text-align: center;
+  }
+
+  .sy-quote__mark {
+    font-family: var(--sy-font-heading);
+    font-size: 96px;
+    line-height: 0.6;
+    color: var(--sy-accent);
+  }
+
+  .sy-quote__text {
+    margin: 0;
+  }
+
+  .sy-quote__text p {
+    margin: 0;
+    font-family: var(--sy-font-heading);
+    font-size: var(--sy-quote-size-m);
+    font-style: italic;
+    line-height: 1.25;
+    color: var(--sy-fg);
+    text-wrap: balance;
+  }
+
+  @media screen and (min-width: 990px) {
+    .sy-quote__text p {
+      font-size: var(--sy-quote-size);
+    }
+  }
+
+  .sy-quote__by {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .sy-quote__by .sy-rule {
+    margin: 0;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "SY Quote",
+  "tag": "div",
+  "settings": [
+    {
+      "type": "inline_richtext",
+      "id": "quote",
+      "label": "Quote",
+      "default": "An old object doesn't need to become precious simply because it's old."
+    },
+    {
+      "type": "text",
+      "id": "attribution",
+      "label": "Attribution"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_mark",
+      "label": "Show quotation mark",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "quote_size",
+      "label": "Quote size (desktop)",
+      "min": 24,
+      "max": 72,
+      "step": 2,
+      "unit": "px",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "quote_size_mobile",
+      "label": "Quote size (mobile)",
+      "min": 20,
+      "max": 44,
+      "step": 2,
+      "unit": "px",
+      "default": 30
+    },
+    {
+      "type": "range",
+      "id": "max_width",
+      "label": "Max width",
+      "min": 480,
+      "max": 1200,
+      "step": 20,
+      "unit": "px",
+      "default": 980
+    },
+    {
+      "type": "select",
+      "id": "alignment",
+      "label": "Alignment",
+      "options": [
+        {
+          "value": "center",
+          "label": "Centre"
+        },
+        {
+          "value": "left",
+          "label": "Left"
+        }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "header",
+      "content": "Colours"
+    },
+    {
+      "type": "select",
+      "id": "color_scheme",
+      "label": "Colour scheme",
+      "options": [
+        {
+          "value": "cream",
+          "label": "Cream"
+        },
+        {
+          "value": "sage",
+          "label": "Light sage"
+        },
+        {
+          "value": "forest",
+          "label": "Forest green (dark)"
+        },
+        {
+          "value": "custom",
+          "label": "Custom"
+        }
+      ],
+      "default": "sage",
+      "info": "Brand colours are set in Theme settings > Subjectively Yours."
+    },
+    {
+      "type": "color",
+      "id": "custom_background",
+      "label": "Background",
+      "default": "#F5EDE1",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "custom_text",
+      "label": "Text",
+      "default": "#41523F",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "custom_muted",
+      "label": "Secondary text",
+      "default": "#5B4632",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "custom_accent",
+      "label": "Accent rules",
+      "default": "#B88D46",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "custom_button_background",
+      "label": "Button background",
+      "default": "#41523F",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "custom_button_text",
+      "label": "Button text",
+      "default": "#F5EDE1",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "color",
+      "id": "custom_card_background",
+      "label": "Image background",
+      "default": "#EFE6D8",
+      "visible_if": "{{ section.settings.color_scheme == 'custom' }}"
+    },
+    {
+      "type": "header",
+      "content": "Section layout"
+    },
+    {
+      "type": "select",
+      "id": "content_width",
+      "label": "Content width",
+      "options": [
+        {
+          "value": "page",
+          "label": "Brand width"
+        },
+        {
+          "value": "narrow",
+          "label": "Narrow"
+        },
+        {
+          "value": "wide",
+          "label": "Wide"
+        },
+        {
+          "value": "full",
+          "label": "Full width"
+        }
+      ],
+      "default": "page"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top padding (desktop)",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "default": 112
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom padding (desktop)",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "default": 112
+    },
+    {
+      "type": "range",
+      "id": "padding_top_mobile",
+      "label": "Top padding (mobile)",
+      "min": 0,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "default": 72
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom_mobile",
+      "label": "Bottom padding (mobile)",
+      "min": 0,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "default": 72
+    },
+    {
+      "type": "checkbox",
+      "id": "reveal",
+      "label": "Reveal on scroll",
+      "default": true,
+      "info": "Also needs Theme settings > Subjectively Yours > Reveal sections on scroll."
+    }
+  ],
+  "presets": [
+    {
+      "name": "SY Quote"
+    }
+  ],
+  "disabled_on": {
+    "groups": [
+      "header"
+    ]
+  }
+}
+{% endschema %}

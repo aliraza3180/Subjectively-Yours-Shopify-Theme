@@ -1,0 +1,51 @@
+{%- doc -%}
+  Outputs Subjectively Yours brand tokens (colours, label font, layout) as CSS custom
+  properties on :root, and self-hosts the Cinzel label font. Rendered once in the layout
+  head after the theme colour palette so SY sections and theme components share them.
+
+  @example
+  {% render 'sy-tokens' %}
+{%- enddoc -%}
+{%- liquid
+  assign label_spacing = settings.sy_label_spacing | divided_by: 100.0
+-%}
+{%- if settings.sy_use_cinzel -%}
+  {{ 'sy-cinzel.woff2' | asset_url | preload_tag: as: 'font', type: 'font/woff2', crossorigin: 'anonymous' }}
+{%- endif -%}
+<style>
+  {%- if settings.sy_use_cinzel %}
+  @font-face {
+    font-family: 'Cinzel';
+    src: url('{{ 'sy-cinzel.woff2' | asset_url }}') format('woff2');
+    font-weight: 400 900;
+    font-style: normal;
+    font-display: swap;
+  }
+  {%- endif %}
+  :root {
+    --sy-cream: {{ settings.sy_color_cream }};
+    --sy-sage: {{ settings.sy_color_sage }};
+    --sy-forest: {{ settings.sy_color_forest }};
+    --sy-gold: {{ settings.sy_color_gold }};
+    --sy-walnut: {{ settings.sy_color_walnut }};
+    --sy-sold: {{ settings.sy_color_sold }};
+    --sy-card-surface: {{ settings.sy_color_card }};
+    --sy-font-heading: var(--font-heading--family);
+    --sy-font-body: var(--font-body--family);
+    --sy-font-label: {% if settings.sy_use_cinzel %}'Cinzel', var(--font-heading--family){% else %}var(--font-body--family){% endif %};
+    --sy-label-spacing: {{ label_spacing }}em;
+    --sy-label-size: {{ settings.sy_label_size }}px;
+    --sy-body-size: {{ settings.sy_body_size }}px;
+    --sy-container: {{ settings.sy_container }}px;
+    --sy-gutter-desktop: {{ settings.sy_gutter }}px;
+    --sy-gutter-mobile: {{ settings.sy_gutter_mobile }}px;
+    --sy-radius: {{ settings.sy_radius }}px;
+    --sy-card-ratio: {{ settings.sy_card_ratio }};
+    --sy-card-fit: {{ settings.sy_card_fit }};
+    {%- if settings.sy_use_cinzel %}
+    --font-accent--family: 'Cinzel', serif;
+    --font-accent--style: normal;
+    --font-accent--weight: 400;
+    {%- endif %}
+  }
+</style>

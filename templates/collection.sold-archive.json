@@ -1,0 +1,53 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "sy_hero": {
+      "type": "sy-collection-hero",
+      "settings": {
+        "layout": "split",
+        "demo_image": "sy-demo-sold-hero.jpg",
+        "eyebrow": "The Sold Archive",
+        "title": "What have I <em>already missed?</em>",
+        "tagline": "Every piece here has found a home — its photographs and details stay on record.",
+        "show_description": true,
+        "alignment": "left"
+      }
+    },
+    "sy_grid": {
+      "type": "sy-main-collection",
+      "settings": {
+        "hide_sold": false,
+        "demo_style": "sold",
+        "empty_heading": "The archive is just beginning.",
+        "empty_text": "<p>As pieces find new homes, they'll be kept here on record.</p>",
+        "empty_button_label": "See what's available",
+        "empty_button_link": "/collections/new-arrivals"
+      }
+    },
+    "sy_cta": {
+      "type": "sy-rich-text",
+      "settings": {
+        "eyebrow": "Looking for something similar?",
+        "heading": "We're <em>always looking</em>",
+        "text": "<p>Tell us what you missed and we'll keep an eye out on the hunt.</p>",
+        "button_label": "Ask us",
+        "button_link": "/pages/contact",
+        "button_style": "solid",
+        "color_scheme": "sage"
+      }
+    }
+  },
+  "order": [
+    "sy_hero",
+    "sy_grid",
+    "sy_cta"
+  ]
+}
