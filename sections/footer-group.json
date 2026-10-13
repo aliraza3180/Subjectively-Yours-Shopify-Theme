@@ -19,7 +19,7 @@
           "type": "menu",
           "settings": {
             "title": "Shop",
-            "menu": "main-menu"
+            "menu": "footer-shop"
           }
         },
         "col_help": {
