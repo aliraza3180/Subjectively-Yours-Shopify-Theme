@@ -17,7 +17,7 @@
           assign img = block.settings.image
           assign link = block.settings.link | default: s.link_url
           assign demo_image = ''
-          if forloop.index <= 4
+          if forloop.index <= 6
             assign demo_image = 'sy-demo-insta-0' | append: forloop.index | append: '.jpg'
           endif
           assign gallery_style = 'object-position: ' | append: img.presentation.focal_point

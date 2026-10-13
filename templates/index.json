@@ -30,14 +30,20 @@
         "padding_top_mobile": 48,
         "link_url": "/collections/new-arrivals",
         "products_to_show": 8,
-        "columns_desktop": 4
+        "columns_desktop": 4,
+        "padding_bottom": 88,
+        "padding_bottom_mobile": 56
       }
     },
     "sy_shop_subjectively": {
       "type": "sy-collection-tiles",
       "settings": {
         "eyebrow": "Shop by category",
-        "link_url": "/collections/all"
+        "link_url": "/collections/all",
+        "padding_top": 88,
+        "padding_top_mobile": 56,
+        "padding_bottom": 88,
+        "padding_bottom_mobile": 56
       },
       "blocks": {
         "tile_1": {
@@ -136,7 +142,11 @@
         "tile_ratio": "4 / 3",
         "label_size": 34,
         "label_size_mobile": 22,
-        "color_scheme": "forest"
+        "color_scheme": "forest",
+        "padding_top": 88,
+        "padding_top_mobile": 56,
+        "padding_bottom": 88,
+        "padding_bottom_mobile": 56
       }
     },
     "sy_enamel_feature": {
@@ -144,17 +154,30 @@
       "disabled": true,
       "settings": {
         "collection": "the-enamel-collection",
-        "button_link": "/collections/the-enamel-collection"
+        "button_link": "/collections/the-enamel-collection",
+        "padding_top": 88,
+        "padding_top_mobile": 56,
+        "padding_bottom": 88,
+        "padding_bottom_mobile": 56
       }
     },
     "sy_statement": {
       "type": "sy-statement",
-      "settings": {}
+      "settings": {
+        "padding_top": 88,
+        "padding_top_mobile": 56,
+        "padding_bottom": 88,
+        "padding_bottom_mobile": 56
+      }
     },
     "sy_collector": {
       "type": "sy-image-text",
       "settings": {
-        "button_link": "/pages/about"
+        "button_link": "/pages/about",
+        "padding_top": 88,
+        "padding_top_mobile": 56,
+        "padding_bottom": 88,
+        "padding_bottom_mobile": 56
       }
     },
     "sy_found_gone": {
@@ -162,17 +185,37 @@
       "settings": {
         "left_collection": "new-arrivals",
         "right_collection": "sold-archive",
-        "link_url": "/collections/sold-archive"
+        "link_url": "/collections/sold-archive",
+        "padding_top": 88,
+        "padding_top_mobile": 56,
+        "padding_bottom": 88,
+        "padding_bottom_mobile": 56,
+        "left_count": 2,
+        "right_count": 2
       }
     },
     "sy_join_the_hunt": {
       "type": "sy-newsletter",
-      "settings": {}
+      "settings": {
+        "padding_top": 88,
+        "padding_top_mobile": 56,
+        "padding_bottom": 88,
+        "padding_bottom_mobile": 56
+      }
     },
     "sy_instagram": {
       "type": "sy-gallery",
       "settings": {
-        "link_url": "https://www.instagram.com/"
+        "link_url": "https://www.instagram.com/",
+        "padding_top": 88,
+        "padding_top_mobile": 56,
+        "padding_bottom": 88,
+        "padding_bottom_mobile": 56,
+        "heading_alignment": "center",
+        "content_width": "full",
+        "columns_desktop": 6,
+        "columns_mobile": "3",
+        "gap": 8
       },
       "blocks": {
         "image_1": {
@@ -190,13 +233,23 @@
         "image_4": {
           "type": "image",
           "settings": {}
+        },
+        "image_5": {
+          "type": "image",
+          "settings": {}
+        },
+        "image_6": {
+          "type": "image",
+          "settings": {}
         }
       },
       "block_order": [
         "image_1",
         "image_2",
         "image_3",
-        "image_4"
+        "image_4",
+        "image_5",
+        "image_6"
       ]
     }
   },

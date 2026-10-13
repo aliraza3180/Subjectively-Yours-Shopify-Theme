@@ -488,6 +488,37 @@
       transform: none;
     }
   }
+
+  /* Header: tighten the logo and row height once the header is stuck while scrolling */
+  #header-component .header-logo__image {
+    transition: height 0.25s ease, width 0.25s ease;
+  }
+
+  #header-component .header__columns,
+  #header-component .header__drawer {
+    transition: padding 0.25s ease, min-height 0.25s ease;
+  }
+
+  #header-component[data-sticky-state='active'] .header-logo__image {
+    width: auto;
+    height: 28px;
+  }
+
+  @media screen and (max-width: 749px) {
+    #header-component[data-sticky-state='active'] .header__drawer {
+      min-height: 48px;
+    }
+  }
+
+  @media screen and (min-width: 750px) {
+    #header-component[data-sticky-state='active'] .header-logo__image {
+      height: 36px;
+    }
+
+    #header-component[data-sticky-state='active'] .header__columns {
+      padding-block: 6px;
+    }
+  }
 {% endstylesheet %}
 
 {% javascript %}

@@ -17,7 +17,7 @@
         "eyebrow": "The Sold Archive",
         "title": "What have I <em>already missed?</em>",
         "tagline": "Every piece here has found a home — its photographs and details stay on record.",
-        "show_description": true,
+        "show_description": false,
         "alignment": "left"
       }
     },

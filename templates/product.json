@@ -23,8 +23,8 @@
             "slideshow_mobile_controls_style": "counter",
             "thumbnail_position": "left",
             "aspect_ratio": "adapt",
-            "constrain_to_viewport": false,
-            "media_fit": "cover",
+            "constrain_to_viewport": true,
+            "media_fit": "contain",
             "media_radius": 0,
             "extend_media": false,
             "zoom": true
@@ -98,7 +98,7 @@
       "settings": {
         "content_width": "content-center-aligned",
         "desktop_media_position": "left",
-        "equal_columns": false,
+        "equal_columns": true,
         "limit_details_width": true,
         "gap": 48,
         "enable_sticky_add_to_cart": true,
