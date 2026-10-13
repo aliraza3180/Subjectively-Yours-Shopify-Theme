@@ -21,8 +21,8 @@
           assign title = block.settings.title | default: col.title
           assign link = block.settings.link | default: col.url
           assign img = block.settings.image | default: col.featured_image
-          assign demo_image = ''
-          if forloop.index <= 6
+          assign demo_image = block.settings.demo_image
+          if demo_image == blank and forloop.index <= 6
             assign demo_image = 'sy-demo-cat-0' | append: forloop.index | append: '.jpg'
           endif
           assign tile_style = 'object-position: ' | append: img.presentation.focal_point
@@ -517,6 +517,20 @@
           "id": "link",
           "label": "Link",
           "info": "Defaults to the collection page."
+        },
+        {
+          "type": "select",
+          "id": "demo_image",
+          "label": "Placeholder (until an image is added)",
+          "options": [
+            { "value": "", "label": "Automatic" },
+            { "value": "sy-demo-about-band.jpg", "label": "Tea table" },
+            { "value": "sy-demo-enamel-feature.jpg", "label": "Enamel boxes" },
+            { "value": "sy-demo-enamel-hero.jpg", "label": "Enamel flat-lay" },
+            { "value": "sy-demo-sold-hero.jpg", "label": "Quiet shelf" },
+            { "value": "sy-demo-collector.jpg", "label": "Unwrapping a teacup" }
+          ],
+          "default": ""
         }
       ]
     }

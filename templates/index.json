@@ -13,12 +13,21 @@
       "type": "sy-hero",
       "settings": {
         "button_link": "/collections/new-arrivals",
-        "heading_tag": "h2"
+        "heading_tag": "h2",
+        "height": "custom",
+        "height_custom": 65,
+        "height_mobile": 75,
+        "heading_size": 72,
+        "content_padding_bottom": 72
       }
     },
     "sy_newly_collected": {
       "type": "sy-product-grid",
       "settings": {
+        "collection": "new-arrivals",
+        "heading_size": 40,
+        "padding_top": 56,
+        "padding_top_mobile": 48,
         "link_url": "/collections/new-arrivals",
         "products_to_show": 8,
         "columns_desktop": 4
@@ -27,6 +36,7 @@
     "sy_shop_subjectively": {
       "type": "sy-collection-tiles",
       "settings": {
+        "eyebrow": "Shop by category",
         "link_url": "/collections/all"
       },
       "blocks": {
@@ -88,9 +98,52 @@
         "tile_6"
       ]
     },
+    "sy_curated": {
+      "type": "sy-collection-tiles",
+      "blocks": {
+        "curated_1": {
+          "type": "tile",
+          "settings": {
+            "collection": "high-tea",
+            "title": "HIGH TEA",
+            "description": "Cups, pots and pretty plates for the tea table",
+            "link": "/collections/high-tea",
+            "demo_image": "sy-demo-about-band.jpg"
+          }
+        },
+        "curated_2": {
+          "type": "tile",
+          "settings": {
+            "collection": "the-enamel-collection",
+            "title": "THE ENAMEL COLLECTION",
+            "description": "Tiny works of art, made to be collected",
+            "link": "/collections/the-enamel-collection",
+            "demo_image": "sy-demo-enamel-feature.jpg"
+          }
+        }
+      },
+      "block_order": [
+        "curated_1",
+        "curated_2"
+      ],
+      "settings": {
+        "eyebrow": "Curated collections",
+        "heading": "Gathered <em>by theme</em>",
+        "link_label": "All collections",
+        "link_url": "/collections",
+        "columns_desktop": 2,
+        "columns_mobile": "1",
+        "tile_ratio": "4 / 3",
+        "label_size": 34,
+        "label_size_mobile": 22,
+        "color_scheme": "forest"
+      }
+    },
     "sy_enamel_feature": {
       "type": "sy-feature",
+      "disabled": true,
       "settings": {
+        "collection": "the-enamel-collection",
         "button_link": "/collections/the-enamel-collection"
       }
     },
@@ -107,6 +160,8 @@
     "sy_found_gone": {
       "type": "sy-found-gone",
       "settings": {
+        "left_collection": "new-arrivals",
+        "right_collection": "sold-archive",
         "link_url": "/collections/sold-archive"
       }
     },
@@ -149,6 +204,7 @@
     "sy_hero",
     "sy_newly_collected",
     "sy_shop_subjectively",
+    "sy_curated",
     "sy_enamel_feature",
     "sy_statement",
     "sy_collector",
